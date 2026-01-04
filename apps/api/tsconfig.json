@@ -1,0 +1,7 @@
+{
+  "extends": "@repo/config/nest.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./"
+  }
+}
