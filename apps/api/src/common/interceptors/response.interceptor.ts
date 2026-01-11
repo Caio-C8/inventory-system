@@ -4,8 +4,10 @@ import {
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { RESPONSE_MESSAGE_KEY } from '../decorators/response-message.decorator';
 
 export interface Response<T> {
   status: number;
@@ -16,6 +18,8 @@ export interface Response<T> {
 
 @Injectable()
 export class CustomResponse<T> implements NestInterceptor<T, Response<T>> {
+  constructor(private reflector: Reflector) {}
+
   intercept(
     context: ExecutionContext,
     next: CallHandler,
@@ -26,10 +30,18 @@ export class CustomResponse<T> implements NestInterceptor<T, Response<T>> {
         const response = ctx.getResponse();
         const statusCode = response.statusCode;
 
+        const decoratorMessage = this.reflector.get<string>(
+          RESPONSE_MESSAGE_KEY,
+          context.getHandler(),
+        );
+
+        const finalMessage =
+          decoratorMessage || data?.message || 'Operação realizada com sucesso';
+
         return {
           status: statusCode,
           success: true,
-          message: data?.message || 'Operação realizada com sucesso',
+          message: finalMessage,
           data: data?.results || data,
         };
       }),
