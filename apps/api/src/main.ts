@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { CustomResponse } from './common/interceptors/ressponse.interceptor';
+import { CustomResponse } from './common/interceptors/response.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception-filter';
 
 async function bootstrap() {
