@@ -7,15 +7,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Product {
-  id         Int     @id @default(autoincrement())
-  name       String  @unique
-  code       String  @unique
-  barcode    String  @unique
-  sale_price Decimal @db.Decimal(10, 2)
+enum SaleStatus {
+  PENDING
+  PAID
+  IN_DELIVERY
+  COMPLETED
+  CANCELED
+  RETURNED
+}
 
-  batch    Batch[]
-  itemSale ItemSale[]
+model Product {
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  code       String    @unique
+  barcode    String    @unique
+  sale_price Decimal   @db.Decimal(10, 2)
+  deleted_at DateTime?
+
+  batches   Batch[]
+  itemsSale ItemSale[]
 
   @@map("products")
 }
@@ -40,22 +50,24 @@ model Customer {
   name         String
   birth_date   DateTime? @db.Date
   contact_info String?
+  deleted_at   DateTime?
 
-  Sale Sale[]
+  sales Sale[]
 
   @@map("customers")
 }
 
 model Sale {
-  id          Int      @id @default(autoincrement())
-  total_value Decimal  @db.Decimal(10, 2)
+  id          Int        @id @default(autoincrement())
+  total_value Decimal    @db.Decimal(10, 2)
   channel     String
   sale_date   DateTime
+  status      SaleStatus @default(PENDING)
   customer_id Int
 
   customer Customer @relation(fields: [customer_id], references: [id], map: "fk_sale_customer")
 
-  itemSale ItemSale[]
+  itemsSale ItemSale[]
 
   @@map("sales")
 }
