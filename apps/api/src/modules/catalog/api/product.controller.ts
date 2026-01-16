@@ -7,12 +7,15 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from '../core/services/product.service';
 import { CreateProductDto } from './dtos/create-product.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { UpdateProductDto } from './dtos/update-product.dto';
-import { ProductWithStock } from '../core/models/product.model';
+import { Product } from '../core/models/product.model';
+import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { GetProductsDto } from './dtos/get-products.dto';
 
 @Controller('products')
 export class ProductController {
@@ -20,9 +23,7 @@ export class ProductController {
 
   @Post()
   @ResponseMessage('Produto criado com sucesso')
-  async create(
-    @Body() createProductDto: CreateProductDto,
-  ): Promise<ProductWithStock> {
+  async create(@Body() createProductDto: CreateProductDto): Promise<Product> {
     return await this.productService.create(createProductDto);
   }
 
@@ -31,20 +32,20 @@ export class ProductController {
   async update(
     @Param('id', ParseIntPipe) productId: number,
     @Body() updateProductDto: UpdateProductDto,
-  ): Promise<ProductWithStock> {
+  ): Promise<Product> {
     return await this.productService.update(productId, updateProductDto);
   }
 
   @Get('/:id')
-  async getOne(
-    @Param('id', ParseIntPipe) productId: number,
-  ): Promise<ProductWithStock> {
+  async getOne(@Param('id', ParseIntPipe) productId: number): Promise<Product> {
     return this.productService.findOne(productId);
   }
 
   @Get()
-  async getAll(): Promise<ProductWithStock[]> {
-    return this.productService.findAll();
+  async getAll(
+    @Query() getProductsDto: GetProductsDto,
+  ): Promise<PaginatedResult<Product>> {
+    return this.productService.findAll(getProductsDto);
   }
 
   @Delete('/:id')
