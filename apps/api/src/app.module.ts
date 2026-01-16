@@ -6,6 +6,7 @@ import { CustomResponse } from './common/interceptors/response.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception-filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PersistenceModule } from './common/persistence/persistence.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PersistenceModule } from './common/persistence/persistence.module';
     }),
     PersistenceModule,
     AuthModule,
+    CatalogModule,
   ],
   controllers: [],
   providers: [
