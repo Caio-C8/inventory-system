@@ -17,12 +17,13 @@ enum SaleStatus {
 }
 
 model Product {
-  id         Int       @id @default(autoincrement())
-  name       String    @unique
-  code       String    @unique
-  barcode    String    @unique
-  sale_price Decimal   @db.Decimal(10, 2)
-  deleted_at DateTime?
+  id            Int       @id @default(autoincrement())
+  name          String    @unique
+  code          String    @unique
+  barcode       String    @unique
+  sale_price    Decimal   @db.Decimal(10, 2)
+  current_stock Int       @default(0)
+  deleted_at    DateTime?
 
   batches   Batch[]
   itemsSale ItemSale[]
