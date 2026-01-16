@@ -6,53 +6,57 @@ import {
 } from '@nestjs/common';
 import {
   CreateProductParams,
-  ProductWithStock,
+  GetProductsParams,
   UpdateProductParams,
-} from '../models/product.model';
+} from '../models/catalog.types';
+import { Product } from '../models/product.model';
 import { ProductRepository } from '../../infrastructure/persistence/product.repository';
+import { PaginatedResult } from 'src/common/models/paginated-result.interface';
 
 @Injectable()
 export class ProductService {
   constructor(private readonly productRepository: ProductRepository) {}
 
-  async create(productData: CreateProductParams): Promise<ProductWithStock> {
-    const product = await this.productRepository.create(productData);
-
-    return { total_quantity: 0, ...product };
+  async create(productData: CreateProductParams): Promise<Product> {
+    // Verify products that already exists
+    return await this.productRepository.create(productData);
   }
 
   async update(
     productId: number,
     productData: UpdateProductParams,
-  ): Promise<ProductWithStock> {
+  ): Promise<Product> {
     const productToUpdate = await this.productRepository.findOne(productId);
 
     if (!productToUpdate) {
       throw new NotFoundException('Produto não encontrado');
     }
 
-    const product = await this.productRepository.update(productId, productData);
-
-    return this.calculateTotalStockQuantity(product);
+    return await this.productRepository.update(productId, productData);
   }
 
-  async findOne(productId: number): Promise<ProductWithStock> {
+  async findOne(productId: number): Promise<Product> {
     const product = await this.productRepository.findOne(productId);
 
     if (!product) {
       throw new NotFoundException('Produto não encontrado');
     }
 
-    return this.calculateTotalStockQuantity(product);
+    return product;
   }
 
-  async findAll(): Promise<ProductWithStock[]> {
-    const products = await this.productRepository.findAll();
+  async findAll(
+    getProductParams: GetProductsParams,
+  ): Promise<PaginatedResult<Product>> {
+    const result = await this.productRepository.findAll(getProductParams);
 
-    return products.map((product) => this.calculateTotalStockQuantity(product));
+    return {
+      data: result.data,
+      meta: result.meta,
+    };
   }
 
-  async delete(productId: number) {
+  async delete(productId: number): Promise<Product> {
     const productToDelete = await this.productRepository.findOne(productId);
 
     if (!productToDelete) {
@@ -66,12 +70,10 @@ export class ProductService {
       );
     }
 
-    const product = await this.productRepository.softDelete(productId);
-
-    return this.calculateTotalStockQuantity(product);
+    return await this.productRepository.softDelete(productId);
   }
 
-  async restore(productId: number) {
+  async restore(productId: number): Promise<Product> {
     const productToRestore = await this.productRepository.findOne(productId);
 
     if (!productToRestore) {
@@ -85,19 +87,6 @@ export class ProductService {
       );
     }
 
-    const product = await this.productRepository.restore(productId);
-
-    return this.calculateTotalStockQuantity(product);
-  }
-
-  //Private methods
-  private calculateTotalStockQuantity(product: any): ProductWithStock {
-    const totalQuantity =
-      product.batches?.reduce(
-        (acc: number, batch: any) => acc + batch.current_quantity,
-        0,
-      ) || 0;
-
-    return { total_quantity: totalQuantity, ...product };
+    return await this.productRepository.restore(productId);
   }
 }

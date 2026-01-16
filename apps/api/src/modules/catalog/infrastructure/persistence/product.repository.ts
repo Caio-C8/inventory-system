@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/common/persistence/prisma.service';
-import { Product } from '../../core/models/product.model';
+import { Product, ProductStatusFilter } from '../../core/models/product.model';
+import { GetProductsParams } from '../../core/models/catalog.types';
+import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { log } from 'console';
 
 @Injectable()
 export class ProductRepository {
@@ -30,15 +33,71 @@ export class ProductRepository {
     });
   }
 
-  async findAll(): Promise<Product[]> {
-    return await this.prisma.product.findMany({
-      where: {
-        deleted_at: null,
+  async findAll(params: GetProductsParams): Promise<PaginatedResult<Product>> {
+    const {
+      page,
+      limit,
+      search,
+      max_price,
+      max_stock,
+      min_price,
+      min_stock,
+      status,
+    } = params;
+
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.ProductWhereInput = {
+      deleted_at:
+        status === ProductStatusFilter.ACTIVE
+          ? null
+          : status === ProductStatusFilter.DELETED
+            ? { not: null }
+            : undefined,
+    };
+
+    if (min_price || max_price) {
+      where.sale_price = {
+        gte: min_price,
+        lte: max_price,
+      };
+    }
+
+    if (min_stock || max_stock) {
+      where.current_stock = {
+        gte: min_stock,
+        lte: max_stock,
+      };
+    }
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { code: { contains: search, mode: 'insensitive' } },
+        { barcode: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [total, data] = await this.prisma.$transaction([
+      this.prisma.product.count({ where }),
+      this.prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        include: { batches: true },
+        orderBy: { id: 'desc' },
+      }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        last_page: Math.ceil(total / limit),
       },
-      include: {
-        batches: true,
-      },
-    });
+    };
   }
 
   async softDelete(id: number) {
