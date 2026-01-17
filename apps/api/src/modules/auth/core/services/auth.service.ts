@@ -1,8 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { LoginCredentials } from '../models/login-credentials.interface';
-import { LoginResponse } from '../models/login-response.interface';
 import { ConfigService } from '@nestjs/config';
+import { LoginParams, LoginResult } from '../models/auth.types';
+import { User } from '../models/user.model';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +11,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async login(credentials: LoginCredentials): Promise<LoginResponse> {
+  async login(credentials: LoginParams): Promise<LoginResult> {
     const user = this.validateUser(credentials.email, credentials.password);
 
     if (!user) {
@@ -33,7 +33,7 @@ export class AuthService {
     };
   }
 
-  private validateUser(email: string, password: string) {
+  private validateUser(email: string, password: string): User | null {
     const emailAdmin = this.configService.get<string>('ADMIN_EMAIL');
     const passwordAdmin = this.configService.get<string>('ADMIN_PASSWORD');
 
