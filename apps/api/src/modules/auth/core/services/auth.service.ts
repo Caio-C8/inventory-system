@@ -15,7 +15,7 @@ export class AuthService {
     const user = this.validateUser(credentials.email, credentials.password);
 
     if (!user) {
-      throw new UnauthorizedException('E-mail ou senha inválidos');
+      throw new UnauthorizedException('E-mail ou senha inválidos.');
     }
 
     const payload = {

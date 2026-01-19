@@ -11,7 +11,7 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  @ResponseMessage('Login realizado com sucesso!')
+  @ResponseMessage('Login realizado com sucesso.')
   async login(@Body() loginDto: LoginDto): Promise<LoginResult> {
     return this.authService.login(loginDto);
   }

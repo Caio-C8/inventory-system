@@ -22,13 +22,13 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
-  @ResponseMessage('Produto criado com sucesso')
+  @ResponseMessage('Produto criado com sucesso.')
   async create(@Body() createProductDto: CreateProductDto): Promise<Product> {
     return await this.productService.create(createProductDto);
   }
 
   @Patch('/:id')
-  @ResponseMessage('Produto alterado com sucesso')
+  @ResponseMessage('Produto alterado com sucesso.')
   async update(
     @Param('id', ParseIntPipe) productId: number,
     @Body() updateProductDto: UpdateProductDto,
@@ -49,13 +49,13 @@ export class ProductController {
   }
 
   @Delete('/:id')
-  @ResponseMessage('Produto removido com sucesso')
+  @ResponseMessage('Produto removido com sucesso.')
   async delete(@Param('id', ParseIntPipe) productId: number) {
     return this.productService.delete(productId);
   }
 
   @Patch('/:id/restore')
-  @ResponseMessage('Produto restaurado com sucesso')
+  @ResponseMessage('Produto restaurado com sucesso.')
   async restore(@Param('id', ParseIntPipe) productId: number) {
     return this.productService.restore(productId);
   }
