@@ -100,7 +100,7 @@ export class ProductRepository {
     };
   }
 
-  async softDelete(id: number) {
+  async softDelete(id: number): Promise<Product> {
     return await this.prisma.product.update({
       where: { id },
       data: {
@@ -112,7 +112,7 @@ export class ProductRepository {
     });
   }
 
-  async restore(id: number) {
+  async restore(id: number): Promise<Product> {
     return await this.prisma.product.update({
       where: { id },
       data: {
@@ -144,6 +144,20 @@ export class ProductRepository {
       where: { id },
       data: {
         current_stock: quantity,
+      },
+    });
+  }
+
+  async findConflicts(
+    orConditions: (
+      | { name: { equals: string } }
+      | { code: { equals: string } }
+      | { barcode: { equals: string } }
+    )[],
+  ): Promise<Product[]> {
+    return await this.prisma.product.findMany({
+      where: {
+        OR: orConditions,
       },
     });
   }

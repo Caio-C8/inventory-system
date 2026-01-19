@@ -1,6 +1,6 @@
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -18,7 +18,12 @@ export class ProductService {
   constructor(private readonly productRepository: ProductRepository) {}
 
   async create(productData: CreateProductParams): Promise<Product> {
-    // Verify products that already exists
+    const conflicts = await this.findConflicts(productData);
+
+    if (conflicts.length > 0) {
+      this.identifyConflicts(conflicts, productData);
+    }
+
     return await this.productRepository.create(productData);
   }
 
@@ -26,10 +31,24 @@ export class ProductService {
     productId: number,
     productData: UpdateProductParams,
   ): Promise<Product> {
+    if (Object.keys(productData).length === 0) {
+      throw new BadRequestException('Nenhum dado fornecido para atualização.');
+    }
+
     const productToUpdate = await this.productRepository.findOne(productId);
 
     if (!productToUpdate) {
-      throw new NotFoundException('Produto não encontrado');
+      throw new NotFoundException('Produto não encontrado.');
+    }
+
+    const potentialConflicts = await this.findConflicts(productData);
+
+    const realConflicts = potentialConflicts.filter(
+      (product) => product.id !== productId,
+    );
+
+    if (realConflicts.length > 0) {
+      this.identifyConflicts(realConflicts, productData);
     }
 
     return await this.productRepository.update(productId, productData);
@@ -39,7 +58,7 @@ export class ProductService {
     const product = await this.productRepository.findOne(productId);
 
     if (!product) {
-      throw new NotFoundException('Produto não encontrado');
+      throw new NotFoundException('Produto não encontrado.');
     }
 
     return product;
@@ -60,14 +79,11 @@ export class ProductService {
     const productToDelete = await this.productRepository.findOne(productId);
 
     if (!productToDelete) {
-      throw new NotFoundException('Produto não encontrado');
+      throw new NotFoundException('Produto não encontrado.');
     }
 
     if (productToDelete.deleted_at) {
-      throw new HttpException(
-        'Produto já está excluído',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Produto já está excluído.');
     }
 
     return await this.productRepository.softDelete(productId);
@@ -77,14 +93,11 @@ export class ProductService {
     const productToRestore = await this.productRepository.findOne(productId);
 
     if (!productToRestore) {
-      throw new NotFoundException('Produto não encontrado');
+      throw new NotFoundException('Produto não encontrado.');
     }
 
     if (!productToRestore.deleted_at) {
-      throw new HttpException(
-        'Produto já está habilitado',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException('Produto já está habilitado.');
     }
 
     return await this.productRepository.restore(productId);
@@ -100,5 +113,66 @@ export class ProductService {
 
   async syncStock(productId: number, quantity: number): Promise<void> {
     await this.productRepository.setStock(productId, quantity);
+  }
+
+  private async findConflicts(
+    data: CreateProductParams | UpdateProductParams,
+  ): Promise<Product[]> {
+    const orConditions = [];
+
+    if (data.name) {
+      orConditions.push({ name: { equals: data.name as string } });
+    }
+
+    if (data.code) {
+      orConditions.push({ code: { equals: data.code as string } });
+    }
+
+    if (data.barcode) {
+      orConditions.push({ barcode: { equals: data.barcode as string } });
+    }
+
+    if (orConditions.length === 0) {
+      return [];
+    }
+
+    return await this.productRepository.findConflicts(orConditions);
+  }
+
+  private identifyConflicts(
+    conflicts: Product[],
+    data: CreateProductParams | UpdateProductParams,
+  ): void {
+    const errors: { field: string; message: string }[] = [];
+
+    conflicts.forEach((product) => {
+      if (product.name === data.name) {
+        errors.push({
+          field: 'name',
+          message: 'Já existe um produto com este nome.',
+        });
+      }
+
+      if (product.code === data.code) {
+        errors.push({
+          field: 'code',
+          message: 'Já existe um produto com este código.',
+        });
+      }
+
+      if (product.barcode === data.barcode) {
+        errors.push({
+          field: 'barcode',
+          message: 'Já existe um produto com este código de barras.',
+        });
+      }
+    });
+
+    if (errors.length > 0) {
+      throw new ConflictException({
+        message: 'Erro de validação nos dados enviados.',
+        errors: errors,
+      });
+    }
   }
 }
