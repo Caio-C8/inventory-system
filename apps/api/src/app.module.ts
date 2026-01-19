@@ -7,6 +7,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception-filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PersistenceModule } from './common/persistence/persistence.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CatalogModule } from './modules/catalog/catalog.module';
     PersistenceModule,
     AuthModule,
     CatalogModule,
+    InventoryModule,
   ],
   controllers: [],
   providers: [
