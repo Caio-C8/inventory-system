@@ -44,17 +44,14 @@ export class BatchController {
   @Get('/product/:productId')
   async getAllByProduct(
     @Param('productId', ParseIntPipe) productId: number,
-    @Query() getBatchesByProductDto: GetBatchesDto,
+    @Query() getBatchesDto: GetBatchesDto,
   ) {
-    return await this.batchService.findAllByProduct(
-      productId,
-      getBatchesByProductDto,
-    );
+    return await this.batchService.findAllByProduct(productId, getBatchesDto);
   }
 
   @Get()
-  async getAll(@Query() getBatchesByProductDto: GetBatchesDto) {
-    return await this.batchService.findAll(getBatchesByProductDto);
+  async getAll(@Query() getBatchesDto: GetBatchesDto) {
+    return await this.batchService.findAll(getBatchesDto);
   }
 
   @Delete('/:id')
