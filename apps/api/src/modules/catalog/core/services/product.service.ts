@@ -89,4 +89,16 @@ export class ProductService {
 
     return await this.productRepository.restore(productId);
   }
+
+  async increaseStock(productId: number, quantity: number): Promise<void> {
+    await this.productRepository.updateStock(productId, quantity, 'increment');
+  }
+
+  async decreaseStock(productId: number, quantity: number): Promise<void> {
+    await this.productRepository.updateStock(productId, quantity, 'decrement');
+  }
+
+  async syncStock(productId: number, quantity: number): Promise<void> {
+    await this.productRepository.setStock(productId, quantity);
+  }
 }
