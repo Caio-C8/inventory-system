@@ -123,4 +123,28 @@ export class ProductRepository {
       },
     });
   }
+
+  async updateStock(
+    id: number,
+    quantity: number,
+    operation: 'increment' | 'decrement',
+  ): Promise<void> {
+    await this.prisma.product.update({
+      where: { id },
+      data: {
+        current_stock: {
+          [operation]: quantity,
+        },
+      },
+    });
+  }
+
+  async setStock(id: number, quantity: number): Promise<void> {
+    await this.prisma.product.update({
+      where: { id },
+      data: {
+        current_stock: quantity,
+      },
+    });
+  }
 }
