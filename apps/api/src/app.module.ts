@@ -9,6 +9,7 @@ import { PersistenceModule } from './common/persistence/persistence.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { ValidationError } from 'class-validator';
+import { CustomersModule } from './modules/customers/customers.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ValidationError } from 'class-validator';
     AuthModule,
     CatalogModule,
     InventoryModule,
+    CustomersModule,
   ],
   controllers: [],
   providers: [
