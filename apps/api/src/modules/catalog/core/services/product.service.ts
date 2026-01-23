@@ -12,6 +12,7 @@ import {
 import { Product } from '../models/product.model';
 import { ProductRepository } from '../../infrastructure/persistence/product.repository';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProductService {
@@ -107,8 +108,17 @@ export class ProductService {
     await this.productRepository.updateStock(productId, quantity, 'increment');
   }
 
-  async decreaseStock(productId: number, quantity: number): Promise<void> {
-    await this.productRepository.updateStock(productId, quantity, 'decrement');
+  async decreaseStock(
+    productId: number,
+    quantity: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    await this.productRepository.updateStock(
+      productId,
+      quantity,
+      'decrement',
+      tx,
+    );
   }
 
   async syncStock(productId: number, quantity: number): Promise<void> {

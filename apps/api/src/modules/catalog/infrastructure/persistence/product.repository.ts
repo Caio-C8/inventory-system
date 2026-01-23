@@ -128,8 +128,11 @@ export class ProductRepository {
     id: number,
     quantity: number,
     operation: 'increment' | 'decrement',
+    tx?: Prisma.TransactionClient,
   ): Promise<void> {
-    await this.prisma.product.update({
+    const client = tx || this.prisma;
+
+    await client.product.update({
       where: { id },
       data: {
         current_stock: {
