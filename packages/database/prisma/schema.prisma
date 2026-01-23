@@ -41,7 +41,8 @@ model Batch {
   purchase_quantity  Int
   product_id         Int
 
-  product Product @relation(fields: [product_id], references: [id], map: "fk_batch_product", onDelete: Cascade)
+  product             Product              @relation(fields: [product_id], references: [id], map: "fk_batch_product", onDelete: Cascade)
+  allocationItemSales AllocationItemSale[]
 
   @@map("batches")
 }
@@ -81,8 +82,21 @@ model ItemSale {
   product_id         Int
   sale_id            Int
 
-  product Product @relation(fields: [product_id], references: [id], map: "fk_item_product")
-  sale    Sale    @relation(fields: [sale_id], references: [id], map: "fk_item_sale", onDelete: Cascade)
+  product          Product              @relation(fields: [product_id], references: [id], map: "fk_item_product")
+  sale             Sale                 @relation(fields: [sale_id], references: [id], map: "fk_item_sale", onDelete: Cascade)
+  batchAllocations AllocationItemSale[]
 
   @@map("items_sale")
+}
+
+model AllocationItemSale {
+  id           Int @id @default(autoincrement())
+  item_sale_id Int
+  batch_id     Int
+  quantity     Int
+
+  itemSale ItemSale @relation(fields: [item_sale_id], references: [id], map: "fk_allocation_item", onDelete: Cascade)
+  batch    Batch    @relation(fields: [batch_id], references: [id], map: "fk_allocation_batch")
+
+  @@map("allocation_items_sale")
 }
