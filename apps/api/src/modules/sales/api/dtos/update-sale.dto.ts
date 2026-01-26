@@ -2,6 +2,7 @@ import {
   IsDate,
   IsEnum,
   IsInt,
+  IsNumber,
   IsOptional,
   IsString,
   Min,
@@ -10,6 +11,12 @@ import { SaleStatus } from '../../core/models/sale.model';
 import { Type } from 'class-transformer';
 
 export class UpdateSaleDto {
+  @IsNumber({}, { message: 'Valor total inválido.' })
+  @Min(0.01, { message: 'O valor total deve ser maior que 0.' })
+  @Type(() => Number)
+  @IsOptional()
+  total_value?: number = 0;
+
   @IsString({ message: 'Forma da venda inválida.' })
   @IsOptional()
   channel?: string;

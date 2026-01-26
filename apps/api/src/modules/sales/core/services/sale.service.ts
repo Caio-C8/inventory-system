@@ -42,7 +42,14 @@ export class SaleService {
     }
 
     const preparedItems: CreateSale['items'] = [];
-    let totalSaleValue = 0;
+
+    let finalTotalValue = 0;
+
+    if (saleData.total_value && saleData.total_value > 0) {
+      finalTotalValue = saleData.total_value;
+    }
+
+    const shouldCalculateTotal = finalTotalValue === 0;
 
     for (const item of saleData.itemsSale) {
       const allocationResult = await this.batchService.calculateBatchAllocation(
@@ -63,7 +70,9 @@ export class SaleService {
         ),
       });
 
-      totalSaleValue += item.quantity * item.unit_sale_price;
+      if (shouldCalculateTotal) {
+        finalTotalValue += item.quantity * item.unit_sale_price;
+      }
     }
 
     const createSaleData: CreateSale = {
@@ -71,7 +80,7 @@ export class SaleService {
       sale_date: saleData.sale_date,
       status: saleData.status,
       customer_id: saleData.customer_id,
-      total_value: totalSaleValue,
+      total_value: finalTotalValue,
       items: preparedItems,
     };
 

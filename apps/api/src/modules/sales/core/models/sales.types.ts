@@ -35,6 +35,7 @@ export interface CreateItemSaleParams {
 }
 
 export interface CreateSaleParams {
+  total_value?: number;
   channel: string;
   sale_date: Date;
   status: SaleStatus;

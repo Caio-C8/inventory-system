@@ -5,6 +5,7 @@ import {
   IsInt,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Min,
   ValidateNested,
@@ -32,6 +33,12 @@ export class CreateItemSaleDto {
 }
 
 export class CreateSaleDto {
+  @IsNumber({}, { message: 'Valor total inválido.' })
+  @Min(0.01, { message: 'O valor total deve ser maior que 0.' })
+  @Type(() => Number)
+  @IsOptional()
+  total_value?: number = 0;
+
   @IsString({ message: 'Forma da venda inválida.' })
   @IsNotEmpty({ message: 'Preencha o campo forma de venda.' })
   channel!: string;
