@@ -41,3 +41,10 @@ export interface CreateSaleParams {
   customer_id: number;
   itemsSale: CreateItemSaleParams[];
 }
+
+export interface UpdateSalePrams {
+  channel?: string;
+  sale_date?: Date;
+  status?: SaleStatus;
+  customer_id?: number;
+}

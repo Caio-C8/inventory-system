@@ -7,9 +7,18 @@ import { SaleRepository } from '../../infrastructure/persistence/sale.repository
 import { BatchService } from '../../../inventory/core/services/batch.service';
 import { ProductService } from '../../../catalog/core/services/product.service';
 import { CustomerService } from '../../../customers/core/services/customer.service';
-import { CreateSale, CreateSaleParams } from '../models/sales.types';
+import {
+  CreateSale,
+  CreateSaleParams,
+  UpdateSalePrams,
+} from '../models/sales.types';
 import { PrismaService } from 'src/common/persistence/prisma.service';
-import { Sale } from '../models/sale.model';
+import {
+  CompleteSale,
+  Sale,
+  SaleStatus,
+  SaleWithItems,
+} from '../models/sale.model';
 
 @Injectable()
 export class SaleService {
@@ -87,5 +96,60 @@ export class SaleService {
 
       return createdSale;
     });
+  }
+
+  async update(
+    saleId: number,
+    saleData: UpdateSalePrams,
+  ): Promise<CompleteSale | SaleWithItems> {
+    const sale = await this.saleRepository.findOne(saleId);
+
+    if (!sale) {
+      throw new BadRequestException('Venda não encontrada.');
+    }
+
+    return await this.saleRepository.update(saleId, saleData);
+  }
+
+  async findOne(saleId: number): Promise<CompleteSale | SaleWithItems> {
+    const sale = await this.saleRepository.findOne(saleId);
+
+    if (!sale) {
+      throw new BadRequestException('Venda não encontrada.');
+    }
+
+    return sale;
+  }
+
+  async findAll(): Promise<CompleteSale[] | SaleWithItems[]> {
+    return await this.saleRepository.findAll();
+  }
+
+  async cancel(saleId: number): Promise<CompleteSale | SaleWithItems> {
+    const sale = await this.saleRepository.findOne(saleId);
+
+    if (!sale) {
+      throw new BadRequestException('Venda não encontrada.');
+    }
+
+    if (sale.status === SaleStatus.CANCELED) {
+      throw new BadRequestException('Venda já está cancelada.');
+    }
+
+    return await this.saleRepository.cancel(saleId);
+  }
+
+  async restore(saleId: number): Promise<CompleteSale | SaleWithItems> {
+    const sale = await this.saleRepository.findOne(saleId);
+
+    if (!sale) {
+      throw new BadRequestException('Venda não encontrada.');
+    }
+
+    if (sale.status !== SaleStatus.CANCELED) {
+      throw new BadRequestException('Venda já está habilitada.');
+    }
+
+    return await this.saleRepository.restore(saleId);
   }
 }
