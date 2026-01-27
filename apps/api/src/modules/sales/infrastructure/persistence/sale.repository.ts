@@ -7,6 +7,7 @@ import {
   Sale,
   SaleStatus,
   SaleWithItems,
+  SaleWithAllocations,
 } from '../../core/models/sale.model';
 import { resourceUsage } from 'process';
 
@@ -86,24 +87,30 @@ export class SaleRepository {
     });
   }
 
-  async cancel(id: number): Promise<CompleteSale | SaleWithItems> {
-    return await this.prisma.sale.update({
+  async findSaleWithItems(id: number): Promise<SaleWithAllocations | null> {
+    return await this.prisma.sale.findUnique({
       where: { id },
-      data: {
-        status: SaleStatus.CANCELED,
-      },
       include: {
-        customer: true,
-        itemsSale: true,
+        itemsSale: {
+          include: {
+            batchAllocations: true,
+          },
+        },
       },
     });
   }
 
-  async restore(id: number): Promise<CompleteSale | SaleWithItems> {
-    return await this.prisma.sale.update({
+  async updateStatus(
+    id: number,
+    status: SaleStatus,
+    tx?: Prisma.TransactionClient,
+  ): Promise<CompleteSale | SaleWithItems> {
+    const client = tx || this.prisma;
+
+    return await client.sale.update({
       where: { id },
       data: {
-        status: SaleStatus.COMPLETED,
+        status: status,
       },
       include: {
         customer: true,

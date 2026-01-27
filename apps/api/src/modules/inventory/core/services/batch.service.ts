@@ -228,6 +228,19 @@ export class BatchService {
     };
   }
 
+  async increaseQuantity(
+    batchId: number,
+    quantity: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    return await this.batchRepository.updateQuantity(
+      batchId,
+      quantity,
+      'increment',
+      tx,
+    );
+  }
+
   async decreaseQuantity(
     batchId: number,
     quantity: number,

@@ -104,8 +104,17 @@ export class ProductService {
     return await this.productRepository.restore(productId);
   }
 
-  async increaseStock(productId: number, quantity: number): Promise<void> {
-    await this.productRepository.updateStock(productId, quantity, 'increment');
+  async increaseStock(
+    productId: number,
+    quantity: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    await this.productRepository.updateStock(
+      productId,
+      quantity,
+      'increment',
+      tx,
+    );
   }
 
   async decreaseStock(

@@ -135,7 +135,7 @@ export class SaleService {
   }
 
   async cancel(saleId: number): Promise<CompleteSale | SaleWithItems> {
-    const sale = await this.saleRepository.findOne(saleId);
+    const sale = await this.saleRepository.findSaleWithItems(saleId);
 
     if (!sale) {
       throw new BadRequestException('Venda não encontrada.');
@@ -145,7 +145,29 @@ export class SaleService {
       throw new BadRequestException('Venda já está cancelada.');
     }
 
-    return await this.saleRepository.cancel(saleId);
+    return await this.prisma.$transaction(async (tx) => {
+      for (const item of sale.itemsSale) {
+        for (const alloc of item.batchAllocations) {
+          await this.batchService.increaseQuantity(
+            alloc.batch_id,
+            alloc.quantity,
+            tx,
+          );
+        }
+
+        await this.productService.increaseStock(
+          item.product_id,
+          item.quantity,
+          tx,
+        );
+      }
+
+      return await this.saleRepository.updateStatus(
+        saleId,
+        SaleStatus.CANCELED,
+        tx,
+      );
+    });
   }
 
   async restore(saleId: number): Promise<CompleteSale | SaleWithItems> {
@@ -159,6 +181,6 @@ export class SaleService {
       throw new BadRequestException('Venda já está habilitada.');
     }
 
-    return await this.saleRepository.restore(saleId);
+    return await this.saleRepository.updateStatus(saleId, SaleStatus.COMPLETED);
   }
 }

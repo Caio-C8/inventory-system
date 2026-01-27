@@ -15,7 +15,7 @@ export class UpdateSaleDto {
   @Min(0.01, { message: 'O valor total deve ser maior que 0.' })
   @Type(() => Number)
   @IsOptional()
-  total_value?: number = 0;
+  total_value?: number;
 
   @IsString({ message: 'Forma da venda inválida.' })
   @IsOptional()
