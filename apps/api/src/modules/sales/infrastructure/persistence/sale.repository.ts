@@ -57,6 +57,25 @@ export class SaleRepository {
     return sale;
   }
 
+  async createAllocations(
+    itemSaleId: number,
+    allocations: Array<{
+      batch_id: number;
+      quantity: number;
+    }>,
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx || this.prisma;
+
+    return await client.allocationItemSale.createMany({
+      data: allocations.map((alloc) => ({
+        item_sale_id: itemSaleId,
+        batch_id: alloc.batch_id,
+        quantity: alloc.quantity,
+      })),
+    });
+  }
+
   async update(
     id: number,
     data: UpdateSalePrams,
@@ -64,6 +83,25 @@ export class SaleRepository {
     return await this.prisma.sale.update({
       where: { id },
       data,
+      include: {
+        customer: true,
+        itemsSale: true,
+      },
+    });
+  }
+
+  async updateStatus(
+    id: number,
+    status: SaleStatus,
+    tx?: Prisma.TransactionClient,
+  ): Promise<CompleteSale | SaleWithItems> {
+    const client = tx || this.prisma;
+
+    return await client.sale.update({
+      where: { id },
+      data: {
+        status: status,
+      },
       include: {
         customer: true,
         itemsSale: true,
@@ -96,25 +134,6 @@ export class SaleRepository {
             batchAllocations: true,
           },
         },
-      },
-    });
-  }
-
-  async updateStatus(
-    id: number,
-    status: SaleStatus,
-    tx?: Prisma.TransactionClient,
-  ): Promise<CompleteSale | SaleWithItems> {
-    const client = tx || this.prisma;
-
-    return await client.sale.update({
-      where: { id },
-      data: {
-        status: status,
-      },
-      include: {
-        customer: true,
-        itemsSale: true,
       },
     });
   }

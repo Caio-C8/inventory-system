@@ -178,6 +178,7 @@ export class BatchService {
   async calculateBatchAllocation(
     productId: number,
     quantityNeeded: number,
+    saleDate: Date = new Date(),
   ): Promise<{
     unit_cost_snapshot: number;
     allocations: Array<{
@@ -186,7 +187,10 @@ export class BatchService {
       unit_cost: number;
     }>;
   }> {
-    const batches = await this.batchRepository.findBathcesToSell(productId);
+    const batches = await this.batchRepository.findBathcesToSell(
+      productId,
+      saleDate,
+    );
 
     let remainingQuantity = quantityNeeded;
     const allocations: Array<{

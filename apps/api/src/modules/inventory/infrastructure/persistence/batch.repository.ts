@@ -111,12 +111,15 @@ export class BatchRepository {
     };
   }
 
-  async findBathcesToSell(productId: number): Promise<Batch[]> {
+  async findBathcesToSell(
+    productId: number,
+    saleDate: Date = new Date(),
+  ): Promise<Batch[]> {
     return await this.prisma.batch.findMany({
       where: {
         product_id: productId,
         current_quantity: { gt: 0 },
-        expiration_date: { gt: new Date() },
+        expiration_date: { gt: saleDate },
       },
       orderBy: { expiration_date: 'asc' },
     });

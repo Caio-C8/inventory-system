@@ -55,6 +55,7 @@ export class SaleService {
       const allocationResult = await this.batchService.calculateBatchAllocation(
         item.product_id,
         item.quantity,
+        saleData.sale_date,
       );
 
       preparedItems.push({
@@ -171,7 +172,7 @@ export class SaleService {
   }
 
   async restore(saleId: number): Promise<CompleteSale | SaleWithItems> {
-    const sale = await this.saleRepository.findOne(saleId);
+    const sale = await this.saleRepository.findSaleWithItems(saleId);
 
     if (!sale) {
       throw new BadRequestException('Venda não encontrada.');
@@ -181,6 +182,27 @@ export class SaleService {
       throw new BadRequestException('Venda já está habilitada.');
     }
 
-    return await this.saleRepository.updateStatus(saleId, SaleStatus.COMPLETED);
+    return await this.prisma.$transaction(async (tx) => {
+      for (const item of sale.itemsSale) {
+        for (const alloc of item.batchAllocations) {
+          await this.batchService.decreaseQuantity(
+            alloc.batch_id,
+            alloc.quantity,
+            tx,
+          );
+        }
+
+        await this.productService.decreaseStock(
+          item.product_id,
+          item.quantity,
+          tx,
+        );
+      }
+
+      return await this.saleRepository.updateStatus(
+        saleId,
+        SaleStatus.COMPLETED,
+      );
+    });
   }
 }
