@@ -10,6 +10,7 @@ import { CustomerService } from '../../../customers/core/services/customer.servi
 import {
   CreateSale,
   CreateSaleParams,
+  GetSalesParams,
   UpdateSalePrams,
 } from '../models/sales.types';
 import { PrismaService } from 'src/common/persistence/prisma.service';
@@ -19,6 +20,7 @@ import {
   SaleStatus,
   SaleWithItems,
 } from '../models/sale.model';
+import { PaginatedResult } from 'src/common/models/paginated-result.interface';
 
 @Injectable()
 export class SaleService {
@@ -131,8 +133,15 @@ export class SaleService {
     return sale;
   }
 
-  async findAll(): Promise<CompleteSale[] | SaleWithItems[]> {
-    return await this.saleRepository.findAll();
+  async findAll(
+    getSalesParams: GetSalesParams,
+  ): Promise<PaginatedResult<Sale>> {
+    const result = await this.saleRepository.findAll(getSalesParams);
+
+    return {
+      data: result.data,
+      meta: result.meta,
+    };
   }
 
   async cancel(saleId: number): Promise<CompleteSale | SaleWithItems> {

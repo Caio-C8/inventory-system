@@ -1,7 +1,11 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/persistence/prisma.service';
 import { Prisma } from '@prisma/client';
-import { CreateSale, UpdateSalePrams } from '../../core/models/sales.types';
+import {
+  CreateSale,
+  GetSalesParams,
+  UpdateSalePrams,
+} from '../../core/models/sales.types';
 import {
   CompleteSale,
   Sale,
@@ -9,6 +13,7 @@ import {
   SaleWithItems,
   SaleWithAllocations,
 } from '../../core/models/sale.model';
+import { PaginatedResult } from 'src/common/models/paginated-result.interface';
 
 @Injectable()
 export class SaleRepository {
@@ -113,10 +118,84 @@ export class SaleRepository {
     });
   }
 
-  async findAll(): Promise<CompleteSale[] | SaleWithItems[]> {
-    return await this.prisma.sale.findMany({
-      include: { customer: true, saleItems: true },
-    });
+  async findAll(params: GetSalesParams): Promise<PaginatedResult<Sale>> {
+    const {
+      page,
+      limit,
+      channel,
+      min_sale_date,
+      max_sale_date,
+      min_total_value,
+      max_total_value,
+      search,
+      status,
+    } = params;
+
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.SaleWhereInput = {};
+
+    if (search) {
+      where.OR = [
+        {
+          customer: {
+            name: {
+              contains: search,
+            },
+          },
+        },
+      ];
+
+      if (!isNaN(Number(search))) {
+        where.OR.push({ id: Number(search) });
+      }
+    }
+
+    if (channel) {
+      where.channel = {
+        equals: channel,
+      };
+    }
+
+    if (min_sale_date || max_sale_date) {
+      where.sale_date = {
+        gte: min_sale_date,
+        lte: max_sale_date,
+      };
+    }
+
+    if (min_total_value || max_total_value) {
+      where.total_value = {
+        gte: min_total_value,
+        lte: max_total_value,
+      };
+    }
+
+    if (status) {
+      where.status = {
+        equals: status,
+      };
+    }
+
+    const [total, data] = await this.prisma.$transaction([
+      this.prisma.sale.count({ where }),
+      this.prisma.sale.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { sale_date: 'desc' },
+      }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        last_page: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findSaleWithItems(id: number): Promise<SaleWithAllocations | null> {

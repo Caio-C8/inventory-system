@@ -55,3 +55,15 @@ export interface UpdateSaleItemParams {
   quantity?: number;
   unit_sale_price?: number;
 }
+
+export interface GetSalesParams {
+  page: number;
+  limit: number;
+  search?: string;
+  status?: SaleStatus;
+  min_sale_date?: Date;
+  max_sale_date?: Date;
+  min_total_value?: number;
+  max_total_value?: number;
+  channel?: string;
+}

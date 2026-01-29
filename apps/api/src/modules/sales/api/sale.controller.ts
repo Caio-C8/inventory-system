@@ -7,11 +7,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { SaleService } from '../core/services/sale.service';
 import { CreateSaleDto } from './dtos/create-sale.dto';
 import { CompleteSale, Sale, SaleWithItems } from '../core/models/sale.model';
 import { UpdateSaleDto } from './dtos/update-sale.dto';
+import { GetSalesDto } from './dtos/get-sales.dto';
+import { PaginatedResult } from 'src/common/models/paginated-result.interface';
 
 @Controller('sales')
 export class SaleController {
@@ -38,8 +41,10 @@ export class SaleController {
   }
 
   @Get()
-  async getAll(): Promise<CompleteSale[] | SaleWithItems[]> {
-    return await this.saleService.findAll();
+  async getAll(
+    @Query() getSalesDto: GetSalesDto,
+  ): Promise<PaginatedResult<Sale>> {
+    return await this.saleService.findAll(getSalesDto);
   }
 
   @Patch('/:id/cancel')
