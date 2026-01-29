@@ -38,9 +38,9 @@ export class CustomerService {
   }
 
   async findAll(
-    getProductParams: GetCustomersParams,
+    getCustomersParams: GetCustomersParams,
   ): Promise<PaginatedResult<Customer>> {
-    const result = await this.customerRepository.findAll(getProductParams);
+    const result = await this.customerRepository.findAll(getCustomersParams);
 
     return {
       data: result.data,
