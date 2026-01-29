@@ -49,3 +49,9 @@ export interface UpdateSalePrams {
   status?: SaleStatus;
   customer_id?: number;
 }
+
+export interface UpdateItemSaleParams {
+  product_id?: number;
+  quantity?: number;
+  unit_sale_price?: number;
+}

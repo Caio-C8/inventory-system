@@ -179,6 +179,7 @@ export class BatchService {
     productId: number,
     quantityNeeded: number,
     saleDate: Date = new Date(),
+    tx?: Prisma.TransactionClient,
   ): Promise<{
     unit_cost_snapshot: number;
     allocations: Array<{
@@ -190,6 +191,7 @@ export class BatchService {
     const batches = await this.batchRepository.findBathcesToSell(
       productId,
       saleDate,
+      tx,
     );
 
     let remainingQuantity = quantityNeeded;

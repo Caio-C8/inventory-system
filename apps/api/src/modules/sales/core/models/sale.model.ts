@@ -28,3 +28,5 @@ export type ItemSaleWithAllocations = PrismaItemSale & {
 export type SaleWithAllocations = PrismaSale & {
   itemsSale: Array<ItemSaleWithAllocations>;
 };
+
+export type AllocationItemSale = PrismaAllocationItemSale;

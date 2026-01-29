@@ -114,8 +114,11 @@ export class BatchRepository {
   async findBathcesToSell(
     productId: number,
     saleDate: Date = new Date(),
+    tx?: Prisma.TransactionClient,
   ): Promise<Batch[]> {
-    return await this.prisma.batch.findMany({
+    const client = tx || this.prisma;
+
+    return await client.batch.findMany({
       where: {
         product_id: productId,
         current_quantity: { gt: 0 },
