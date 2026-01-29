@@ -9,7 +9,6 @@ import {
   SaleWithItems,
   SaleWithAllocations,
 } from '../../core/models/sale.model';
-import { resourceUsage } from 'process';
 
 @Injectable()
 export class SaleRepository {
@@ -57,25 +56,6 @@ export class SaleRepository {
     return sale;
   }
 
-  async createAllocations(
-    itemSaleId: number,
-    allocations: Array<{
-      batch_id: number;
-      quantity: number;
-    }>,
-    tx?: Prisma.TransactionClient,
-  ) {
-    const client = tx || this.prisma;
-
-    return await client.allocationItemSale.createMany({
-      data: allocations.map((alloc) => ({
-        item_sale_id: itemSaleId,
-        batch_id: alloc.batch_id,
-        quantity: alloc.quantity,
-      })),
-    });
-  }
-
   async update(
     id: number,
     data: UpdateSalePrams,
@@ -104,6 +84,20 @@ export class SaleRepository {
       },
       include: {
         customer: true,
+        itemsSale: true,
+      },
+    });
+  }
+
+  async updateTotalValue(
+    id: number,
+    newTotal: number,
+    tx: Prisma.TransactionClient,
+  ) {
+    return await tx.sale.update({
+      where: { id },
+      data: { total_value: newTotal },
+      include: {
         itemsSale: true,
       },
     });
