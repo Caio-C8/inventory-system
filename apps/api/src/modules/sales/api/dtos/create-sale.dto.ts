@@ -13,7 +13,7 @@ import {
 import { SaleStatus } from '../../core/models/sale.model';
 import { Type } from 'class-transformer';
 
-export class CreateItemSaleDto {
+export class CreateSaleItemDto {
   @IsInt({ message: 'ID do produto inválido.' })
   @Min(1, { message: 'Informe um ID de produto válido.' })
   @Type(() => Number)
@@ -59,6 +59,6 @@ export class CreateSaleDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateItemSaleDto)
-  itemsSale!: CreateItemSaleDto[];
+  @Type(() => CreateSaleItemDto)
+  saleItems!: CreateSaleItemDto[];
 }

@@ -28,7 +28,7 @@ export class SaleRepository {
     });
 
     for (const item of data.items) {
-      const itemSale = await tx.itemSale.create({
+      const saleItem = await tx.saleItem.create({
         data: {
           quantity: item.quantity,
           unit_sale_price: item.unit_sale_price,
@@ -43,10 +43,10 @@ export class SaleRepository {
       });
 
       if (item.allocations.length > 0) {
-        await tx.allocationItemSale.createMany({
+        await tx.allocationSaleItem.createMany({
           data: item.allocations.map((alloc) => ({
             quantity: alloc.quantity,
-            item_sale_id: itemSale.id,
+            sale_item_id: saleItem.id,
             batch_id: alloc.batch_id,
           })),
         });
@@ -65,7 +65,7 @@ export class SaleRepository {
       data,
       include: {
         customer: true,
-        itemsSale: true,
+        saleItems: true,
       },
     });
   }
@@ -84,7 +84,7 @@ export class SaleRepository {
       },
       include: {
         customer: true,
-        itemsSale: true,
+        saleItems: true,
       },
     });
   }
@@ -98,7 +98,7 @@ export class SaleRepository {
       where: { id },
       data: { total_value: newTotal },
       include: {
-        itemsSale: true,
+        saleItems: true,
       },
     });
   }
@@ -108,14 +108,14 @@ export class SaleRepository {
       where: { id },
       include: {
         customer: true,
-        itemsSale: true,
+        saleItems: true,
       },
     });
   }
 
   async findAll(): Promise<CompleteSale[] | SaleWithItems[]> {
     return await this.prisma.sale.findMany({
-      include: { customer: true, itemsSale: true },
+      include: { customer: true, saleItems: true },
     });
   }
 
@@ -123,7 +123,7 @@ export class SaleRepository {
     return await this.prisma.sale.findUnique({
       where: { id },
       include: {
-        itemsSale: {
+        saleItems: {
           include: {
             batchAllocations: true,
           },

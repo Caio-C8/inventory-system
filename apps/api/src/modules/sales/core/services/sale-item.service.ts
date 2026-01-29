@@ -9,7 +9,7 @@ import { BatchService } from '../../../inventory/core/services/batch.service';
 import { ProductService } from '../../../catalog/core/services/product.service';
 import { PrismaService } from 'src/common/persistence/prisma.service';
 import { SaleStatus } from '../models/sale.model';
-import { UpdateItemSaleParams } from '../models/sales.types';
+import { UpdateSaleItemParams } from '../models/sales.types';
 
 @Injectable()
 export class SaleItemService {
@@ -21,7 +21,7 @@ export class SaleItemService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async update(saleItemId: number, updateData: UpdateItemSaleParams) {
+  async update(saleItemId: number, updateData: UpdateSaleItemParams) {
     const currentItem = await this.saleItemRepository.findOne(saleItemId);
 
     if (!currentItem) {

@@ -37,7 +37,7 @@ export class SaleService {
       throw new NotFoundException('Cliente não encontrado.');
     }
 
-    if (!saleData.itemsSale || saleData.itemsSale.length <= 0) {
+    if (!saleData.saleItems || saleData.saleItems.length <= 0) {
       throw new BadRequestException('A venda deve ter pelo menos um item.');
     }
 
@@ -51,7 +51,7 @@ export class SaleService {
 
     const shouldCalculateTotal = finalTotalValue === 0;
 
-    for (const item of saleData.itemsSale) {
+    for (const item of saleData.saleItems) {
       const allocationResult = await this.batchService.calculateBatchAllocation(
         item.product_id,
         item.quantity,
@@ -147,7 +147,7 @@ export class SaleService {
     }
 
     return await this.prisma.$transaction(async (tx) => {
-      for (const item of sale.itemsSale) {
+      for (const item of sale.saleItems) {
         for (const alloc of item.batchAllocations) {
           await this.batchService.increaseQuantity(
             alloc.batch_id,
@@ -183,7 +183,7 @@ export class SaleService {
     }
 
     return await this.prisma.$transaction(async (tx) => {
-      for (const item of sale.itemsSale) {
+      for (const item of sale.saleItems) {
         for (const alloc of item.batchAllocations) {
           await this.batchService.decreaseQuantity(
             alloc.batch_id,

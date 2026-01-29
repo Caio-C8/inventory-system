@@ -17,14 +17,14 @@ export class SaleItemRepository {
     tx?: Prisma.TransactionClient,
   ) {
     const client = tx || this.prisma;
-    return await client.itemSale.update({
+    return await client.saleItem.update({
       where: { id },
       data,
     });
   }
 
   async findOne(id: number) {
-    return await this.prisma.itemSale.findUnique({
+    return await this.prisma.saleItem.findUnique({
       where: { id },
       include: {
         batchAllocations: true,
@@ -35,26 +35,26 @@ export class SaleItemRepository {
 
   async delete(id: number, tx?: Prisma.TransactionClient): Promise<void> {
     const client = tx || this.prisma;
-    await client.itemSale.delete({ where: { id } });
+    await client.saleItem.delete({ where: { id } });
   }
 
   async createAllocations(
-    itemSaleId: number,
+    saleItemId: number,
     allocations: { batch_id: number; quantity: number }[],
     tx: Prisma.TransactionClient,
   ) {
-    return await tx.allocationItemSale.createMany({
+    return await tx.allocationSaleItem.createMany({
       data: allocations.map((alloc) => ({
-        item_sale_id: itemSaleId,
+        sale_item_id: saleItemId,
         batch_id: alloc.batch_id,
         quantity: alloc.quantity,
       })),
     });
   }
 
-  async deleteAllocations(itemSaleId: number, tx: Prisma.TransactionClient) {
-    return await tx.allocationItemSale.deleteMany({
-      where: { item_sale_id: itemSaleId },
+  async deleteAllocations(saleItemId: number, tx: Prisma.TransactionClient) {
+    return await tx.allocationSaleItem.deleteMany({
+      where: { sale_item_id: saleItemId },
     });
   }
 }

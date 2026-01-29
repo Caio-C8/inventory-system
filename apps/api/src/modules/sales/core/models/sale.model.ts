@@ -1,8 +1,8 @@
 import {
   Sale as PrismaSale,
-  ItemSale as PrismaItemSale,
+  SaleItem as PrismaSaleItem,
   Customer as PrismaCustomer,
-  AllocationItemSale as PrismaAllocationItemSale,
+  AllocationSaleItem as PrismaAllocationSaleItem,
   SaleStatus as PrismaSaleStatus,
 } from '@prisma/client';
 
@@ -10,23 +10,23 @@ export const SaleStatus = PrismaSaleStatus;
 export type SaleStatus = PrismaSaleStatus;
 
 export type Sale = PrismaSale;
-export type ItemSale = PrismaItemSale;
+export type SaleItem = PrismaSaleItem;
 
 export type SaleWithItems = PrismaSale & {
-  itemsSale: PrismaItemSale[];
+  saleItems: PrismaSaleItem[];
 };
 
 export type CompleteSale = PrismaSale & {
   customer: PrismaCustomer;
-  itemsSale: PrismaItemSale[];
+  saleItems: PrismaSaleItem[];
 };
 
-export type ItemSaleWithAllocations = PrismaItemSale & {
-  batchAllocations: PrismaAllocationItemSale[];
+export type SaleItemWithAllocations = PrismaSaleItem & {
+  batchAllocations: PrismaAllocationSaleItem[];
 };
 
 export type SaleWithAllocations = PrismaSale & {
-  itemsSale: Array<ItemSaleWithAllocations>;
+  saleItems: Array<SaleItemWithAllocations>;
 };
 
-export type AllocationItemSale = PrismaAllocationItemSale;
+export type AllocationSaleItem = PrismaAllocationSaleItem;

@@ -28,7 +28,7 @@ export interface CreateSale {
   }>;
 }
 
-export interface CreateItemSaleParams {
+export interface CreateSaleItemParams {
   product_id: number;
   quantity: number;
   unit_sale_price: number;
@@ -40,7 +40,7 @@ export interface CreateSaleParams {
   sale_date: Date;
   status: SaleStatus;
   customer_id: number;
-  itemsSale: CreateItemSaleParams[];
+  saleItems: CreateSaleItemParams[];
 }
 
 export interface UpdateSalePrams {
@@ -50,7 +50,7 @@ export interface UpdateSalePrams {
   customer_id?: number;
 }
 
-export interface UpdateItemSaleParams {
+export interface UpdateSaleItemParams {
   product_id?: number;
   quantity?: number;
   unit_sale_price?: number;
