@@ -15,6 +15,8 @@ import { CompleteSale, Sale, SaleWithItems } from '../core/models/sale.model';
 import { UpdateSaleDto } from './dtos/update-sale.dto';
 import { GetSalesDto } from './dtos/get-sales.dto';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { SalesReportResponse } from '../core/models/sales.types';
+import { GetSalesReportDto } from './dtos/get-sales-report.dto';
 
 @Controller('sales')
 export class SaleController {
@@ -45,6 +47,13 @@ export class SaleController {
     @Query() getSalesDto: GetSalesDto,
   ): Promise<PaginatedResult<Sale>> {
     return await this.saleService.findAll(getSalesDto);
+  }
+
+  @Get('/dashboard/report')
+  async getReport(
+    @Query() getSalesReportDto: GetSalesReportDto,
+  ): Promise<SalesReportResponse> {
+    return await this.saleService.generateReport(getSalesReportDto);
   }
 
   @Patch('/:id/cancel')

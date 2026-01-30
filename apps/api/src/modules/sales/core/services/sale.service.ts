@@ -10,7 +10,10 @@ import { CustomerService } from '../../../customers/core/services/customer.servi
 import {
   CreateSale,
   CreateSaleParams,
+  GetSalesForReportParams,
   GetSalesParams,
+  SalesReportMetric,
+  SalesReportResponse,
   UpdateSalePrams,
 } from '../models/sales.types';
 import { PrismaService } from 'src/common/persistence/prisma.service';
@@ -141,6 +144,65 @@ export class SaleService {
     return {
       data: result.data,
       meta: result.meta,
+    };
+  }
+
+  async generateReport(
+    paramsForReport: GetSalesForReportParams,
+  ): Promise<SalesReportResponse> {
+    const sales = await this.saleRepository.findSalesForReport(paramsForReport);
+
+    const reportMap = new Map<string, SalesReportMetric>();
+
+    const grandTotal: SalesReportMetric = {
+      channel: 'TOTAL',
+      count: 0,
+      total_revenue: 0,
+      total_cost: 0,
+      total_profit: 0,
+    };
+
+    for (const sale of sales) {
+      const channelName = sale.channel;
+
+      if (!reportMap.has(channelName)) {
+        reportMap.set(channelName, {
+          channel: channelName,
+          count: 0,
+          total_revenue: 0,
+          total_cost: 0,
+          total_profit: 0,
+        });
+      }
+
+      const channelMetric = reportMap.get(channelName)!;
+
+      let saleCost = 0;
+      for (const item of sale.saleItems) {
+        saleCost += Number(item.unit_cost_snapshot) * item.quantity;
+      }
+
+      const saleRevenue = Number(sale.total_value);
+      const saleProfit = saleRevenue - saleCost;
+
+      channelMetric.count += 1;
+      channelMetric.total_revenue += saleRevenue;
+      channelMetric.total_cost += saleCost;
+      channelMetric.total_profit += saleProfit;
+
+      grandTotal.count += 1;
+      grandTotal.total_revenue += saleRevenue;
+      grandTotal.total_cost += saleCost;
+      grandTotal.total_profit += saleProfit;
+    }
+
+    return {
+      period: {
+        start: paramsForReport.start_date,
+        end: paramsForReport.end_date,
+      },
+      by_channel: Array.from(reportMap.values()),
+      grand_total: grandTotal,
     };
   }
 

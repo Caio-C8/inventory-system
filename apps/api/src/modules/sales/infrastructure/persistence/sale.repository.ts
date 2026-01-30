@@ -3,6 +3,7 @@ import { PrismaService } from 'src/common/persistence/prisma.service';
 import { Prisma } from '@prisma/client';
 import {
   CreateSale,
+  GetSalesForReportParams,
   GetSalesParams,
   UpdateSalePrams,
 } from '../../core/models/sales.types';
@@ -212,6 +213,31 @@ export class SaleRepository {
             batchAllocations: true,
           },
         },
+      },
+    });
+  }
+
+  async findSalesForReport(
+    params: GetSalesForReportParams,
+  ): Promise<SaleWithItems[]> {
+    const { start_date, end_date, channel } = params;
+
+    const where: Prisma.SaleWhereInput = {
+      status: SaleStatus.COMPLETED,
+      sale_date: {
+        gte: start_date,
+        lte: end_date,
+      },
+    };
+
+    if (channel) {
+      where.channel = channel;
+    }
+
+    return await this.prisma.sale.findMany({
+      where,
+      include: {
+        saleItems: true,
       },
     });
   }

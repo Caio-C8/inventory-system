@@ -67,3 +67,26 @@ export interface GetSalesParams {
   max_total_value?: number;
   channel?: string;
 }
+
+export interface GetSalesForReportParams {
+  start_date: Date;
+  end_date: Date;
+  channel?: string;
+}
+
+export interface SalesReportMetric {
+  channel: string;
+  count: number;
+  total_revenue: number;
+  total_cost: number;
+  total_profit: number;
+}
+
+export interface SalesReportResponse {
+  period: {
+    start: Date;
+    end: Date;
+  };
+  by_channel: SalesReportMetric[];
+  grand_total: SalesReportMetric;
+}
