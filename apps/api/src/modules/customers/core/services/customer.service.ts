@@ -11,13 +11,17 @@ import {
 import { Customer } from '../models/customer.model';
 import { GetCustomersParams } from '../models/customers.types';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { normalizeString } from 'src/common/utils/string.utils';
 
 @Injectable()
 export class CustomerService {
   constructor(private readonly customerRepository: CustomerRepository) {}
 
   async create(customerData: CreateCustomerParams): Promise<Customer> {
-    return await this.customerRepository.create(customerData);
+    return await this.customerRepository.create({
+      ...customerData,
+      name_search: normalizeString(customerData.name),
+    });
   }
 
   async update(
@@ -30,7 +34,12 @@ export class CustomerService {
       throw new NotFoundException('Cliente não encontrado.');
     }
 
-    return await this.customerRepository.update(customerId, customerData);
+    return await this.customerRepository.update(customerId, {
+      ...customerData,
+      name_search: customerData.name
+        ? normalizeString(customerData.name)
+        : undefined,
+    });
   }
 
   async findOne(customerId: number): Promise<Customer | null> {
