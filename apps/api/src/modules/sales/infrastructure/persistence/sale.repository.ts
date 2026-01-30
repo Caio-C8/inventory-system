@@ -185,6 +185,10 @@ export class SaleRepository {
         skip,
         take: limit,
         orderBy: { sale_date: 'desc' },
+        include: {
+          customer: true,
+          saleItems: true,
+        },
       }),
     ]);
 
