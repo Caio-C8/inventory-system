@@ -7,6 +7,7 @@ import {
 } from '../../core/models/customer.model';
 import { GetCustomersParams } from '../../core/models/customers.types';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { normalizeString } from 'src/common/utils/string.utils';
 
 @Injectable()
 export class CustomerRepository {
@@ -52,8 +53,8 @@ export class CustomerRepository {
     if (search) {
       where.OR = [
         {
-          name: {
-            contains: search,
+          name_search: {
+            contains: normalizeString(search),
           },
         },
       ];

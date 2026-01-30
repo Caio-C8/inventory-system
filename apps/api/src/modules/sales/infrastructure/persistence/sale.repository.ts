@@ -14,6 +14,7 @@ import {
   SaleWithAllocations,
 } from '../../core/models/sale.model';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { normalizeString } from 'src/common/utils/string.utils';
 
 @Injectable()
 export class SaleRepository {
@@ -139,8 +140,8 @@ export class SaleRepository {
       where.OR = [
         {
           customer: {
-            name: {
-              contains: search,
+            name_search: {
+              contains: normalizeString(search),
             },
           },
         },
