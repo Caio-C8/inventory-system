@@ -31,6 +31,22 @@ export class BatchRepository {
     return await this.prisma.batch.update({ where: { id }, data });
   }
 
+  async updateQuantity(
+    id: number,
+    quantity: number,
+    operation: 'increment' | 'decrement',
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    const client = tx || this.prisma;
+
+    await client.batch.update({
+      where: { id },
+      data: {
+        current_quantity: { [operation]: quantity },
+      },
+    });
+  }
+
   async findOne(id: number): Promise<Batch | null> {
     return await this.prisma.batch.findUnique({ where: { id } });
   }
@@ -95,6 +111,23 @@ export class BatchRepository {
     };
   }
 
+  async findBathcesToSell(
+    productId: number,
+    saleDate: Date = new Date(),
+    tx?: Prisma.TransactionClient,
+  ): Promise<Batch[]> {
+    const client = tx || this.prisma;
+
+    return await client.batch.findMany({
+      where: {
+        product_id: productId,
+        current_quantity: { gt: 0 },
+        expiration_date: { gt: saleDate },
+      },
+      orderBy: { expiration_date: 'asc' },
+    });
+  }
+
   async delete(id: number): Promise<void> {
     await this.prisma.batch.delete({ where: { id } });
   }
@@ -110,7 +143,7 @@ export class BatchRepository {
     return result._sum.current_quantity || 0;
   }
 
-  getWhereCondition(params: GetBatchesParams) {
+  private getWhereCondition(params: GetBatchesParams) {
     const {
       min_expiration_date,
       max_expiration_date,

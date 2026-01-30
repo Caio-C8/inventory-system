@@ -10,6 +10,7 @@ import { CatalogModule } from './modules/catalog/catalog.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { ValidationError } from 'class-validator';
 import { CustomersModule } from './modules/customers/customers.module';
+import { SalesModule } from './modules/sales/sales.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CustomersModule } from './modules/customers/customers.module';
     CatalogModule,
     InventoryModule,
     CustomersModule,
+    SalesModule,
   ],
   controllers: [],
   providers: [

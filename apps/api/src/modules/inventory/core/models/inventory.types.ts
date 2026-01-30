@@ -30,3 +30,9 @@ export interface GetBatchesParams {
   min_purchase_quantity?: number;
   max_purchase_quantity?: number;
 }
+
+export interface BatchAllocation {
+  batch_id: number;
+  quantity: number;
+  unit_cost: number;
+}

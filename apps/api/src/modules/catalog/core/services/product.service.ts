@@ -12,6 +12,8 @@ import {
 import { Product } from '../models/product.model';
 import { ProductRepository } from '../../infrastructure/persistence/product.repository';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { Prisma } from '@prisma/client';
+import { normalizeString } from 'src/common/utils/string.utils';
 
 @Injectable()
 export class ProductService {
@@ -24,7 +26,10 @@ export class ProductService {
       this.identifyConflicts(conflicts, productData);
     }
 
-    return await this.productRepository.create(productData);
+    return await this.productRepository.create({
+      ...productData,
+      name_search: normalizeString(productData.name),
+    });
   }
 
   async update(
@@ -51,7 +56,12 @@ export class ProductService {
       this.identifyConflicts(realConflicts, productData);
     }
 
-    return await this.productRepository.update(productId, productData);
+    return await this.productRepository.update(productId, {
+      ...productData,
+      name_search: productData.name
+        ? normalizeString(productData.name)
+        : undefined,
+    });
   }
 
   async findOne(productId: number): Promise<Product> {
@@ -103,12 +113,30 @@ export class ProductService {
     return await this.productRepository.restore(productId);
   }
 
-  async increaseStock(productId: number, quantity: number): Promise<void> {
-    await this.productRepository.updateStock(productId, quantity, 'increment');
+  async increaseStock(
+    productId: number,
+    quantity: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    await this.productRepository.updateStock(
+      productId,
+      quantity,
+      'increment',
+      tx,
+    );
   }
 
-  async decreaseStock(productId: number, quantity: number): Promise<void> {
-    await this.productRepository.updateStock(productId, quantity, 'decrement');
+  async decreaseStock(
+    productId: number,
+    quantity: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    await this.productRepository.updateStock(
+      productId,
+      quantity,
+      'decrement',
+      tx,
+    );
   }
 
   async syncStock(productId: number, quantity: number): Promise<void> {

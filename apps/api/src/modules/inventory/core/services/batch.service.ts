@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { BatchRepository } from '../../infrastructure/persistence/batch.repository';
 import {
+  BatchAllocation,
   CreateBatchParams,
   GetBatchesParams,
   UpdateBatchParams,
@@ -12,6 +13,7 @@ import {
 import { Batch } from '../models/batch.model';
 import { ProductService } from 'src/modules/catalog/core/services/product.service';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class BatchService {
@@ -171,5 +173,90 @@ export class BatchService {
     await this.productService.syncStock(productId, totalQuantity);
 
     return { synced_stock: totalQuantity };
+  }
+
+  async calculateBatchAllocation(
+    productId: number,
+    quantityNeeded: number,
+    saleDate: Date = new Date(),
+    tx?: Prisma.TransactionClient,
+  ): Promise<{
+    unit_cost_snapshot: number;
+    allocations: Array<{
+      batch_id: number;
+      quantity: number;
+      unit_cost: number;
+    }>;
+  }> {
+    const batches = await this.batchRepository.findBathcesToSell(
+      productId,
+      saleDate,
+      tx,
+    );
+
+    let remainingQuantity = quantityNeeded;
+    const allocations: Array<{
+      batch_id: number;
+      quantity: number;
+      unit_cost: number;
+    }> = [];
+    let totalCost = 0;
+
+    for (const batch of batches) {
+      if (remainingQuantity <= 0) {
+        break;
+      }
+
+      const available = batch.current_quantity;
+      const toTake = Math.min(available, remainingQuantity);
+
+      allocations.push({
+        batch_id: batch.id,
+        quantity: toTake,
+        unit_cost: Number(batch.unit_cost_price),
+      });
+
+      totalCost += toTake * Number(batch.unit_cost_price);
+      remainingQuantity -= toTake;
+    }
+
+    if (remainingQuantity > 0) {
+      throw new BadRequestException(
+        `Estoque insuficiente para completar a venda. Faltam ${remainingQuantity} unidades.`,
+      );
+    }
+
+    const unitCostSnapshot = totalCost / quantityNeeded;
+
+    return {
+      unit_cost_snapshot: unitCostSnapshot,
+      allocations,
+    };
+  }
+
+  async increaseQuantity(
+    batchId: number,
+    quantity: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    return await this.batchRepository.updateQuantity(
+      batchId,
+      quantity,
+      'increment',
+      tx,
+    );
+  }
+
+  async decreaseQuantity(
+    batchId: number,
+    quantity: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    return await this.batchRepository.updateQuantity(
+      batchId,
+      quantity,
+      'decrement',
+      tx,
+    );
   }
 }
