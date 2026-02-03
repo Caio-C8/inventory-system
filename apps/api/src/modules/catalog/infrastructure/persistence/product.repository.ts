@@ -4,7 +4,7 @@ import { PrismaService } from 'src/common/persistence/prisma.service';
 import { Product, ProductStatusFilter } from '../../core/models/product.model';
 import { GetProductsParams } from '../../core/models/catalog.types';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
-import { normalizeString } from 'src/common/utils/string.utils';
+import { normalizeString } from '@repo/utils';
 
 @Injectable()
 export class ProductRepository {

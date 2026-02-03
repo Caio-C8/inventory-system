@@ -13,7 +13,7 @@ import { Product } from '../models/product.model';
 import { ProductRepository } from '../../infrastructure/persistence/product.repository';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
 import { Prisma } from '@prisma/client';
-import { normalizeString } from 'src/common/utils/string.utils';
+import { normalizeString } from '@repo/utils';
 
 @Injectable()
 export class ProductService {

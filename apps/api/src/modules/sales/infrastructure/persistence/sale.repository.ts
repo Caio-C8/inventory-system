@@ -15,7 +15,7 @@ import {
   SaleWithAllocations,
 } from '../../core/models/sale.model';
 import { PaginatedResult } from 'src/common/models/paginated-result.interface';
-import { normalizeString } from 'src/common/utils/string.utils';
+import { normalizeString } from '@repo/utils';
 
 @Injectable()
 export class SaleRepository {
