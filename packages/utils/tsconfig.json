@@ -1,0 +1,9 @@
+{
+  "extends": "@repo/config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

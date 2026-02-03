@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { ZodValidationException } from 'nestjs-zod';
 
 interface ErrorResponse {
   status: number;
@@ -25,44 +26,38 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const statusCode =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
+    let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = 'Erro interno de servidor.';
+    let errors: { field: string; message: string }[] = [];
 
-    const exceptionResponse =
-      exception instanceof HttpException ? exception.getResponse() : null;
+    if (exception instanceof ZodValidationException) {
+      statusCode = HttpStatus.BAD_REQUEST;
+      message = 'Erro de validação.';
+      errors = exception.getZodError().errors.map((issue) => ({
+        field: issue.path.join('.'),
+        message: issue.message,
+      }));
+    } else if (exception instanceof HttpException) {
+      statusCode = exception.getStatus();
+      const exceptionResponse = exception.getResponse() as any;
+
+      if (typeof exceptionResponse === 'string') {
+        message = exceptionResponse;
+      } else {
+        message = exceptionResponse.message || 'Erro na requisição.';
+        errors = exceptionResponse.errors || [];
+      }
+    } else if (exception instanceof Error) {
+      message = exception.message;
+    }
 
     const errorBody: ErrorResponse = {
       status: statusCode,
       timestamp: new Date().toISOString(),
       path: request.url,
-      message: 'Erro interno de servidor.',
-      errors: [],
+      message,
+      errors,
     };
-
-    if (exceptionResponse) {
-      if (typeof exceptionResponse === 'string') {
-        errorBody.message = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object') {
-        const resp = exceptionResponse as any;
-
-        if (resp.errors) {
-          errorBody.errors = resp.errors;
-          errorBody.message = resp.message || 'Erro de validação.';
-        } else if (Array.isArray(resp.message)) {
-          errorBody.message = 'Erro de validação.';
-          errorBody.errors = resp.message.map((msg: string) => ({
-            field: 'global',
-            message: msg,
-          }));
-        } else if (resp.message) {
-          errorBody.message = resp.message;
-        }
-      }
-    } else if (exception instanceof Error) {
-      errorBody.message = exception.message;
-    }
 
     if (statusCode === HttpStatus.INTERNAL_SERVER_ERROR) {
       this.logger.error(exception);

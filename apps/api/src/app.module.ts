@@ -8,9 +8,9 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PersistenceModule } from './common/persistence/persistence.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
-import { ValidationError } from 'class-validator';
 import { CustomersModule } from './modules/customers/customers.module';
 import { SalesModule } from './modules/sales/sales.module';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @Module({
   imports: [
@@ -40,28 +40,7 @@ import { SalesModule } from './modules/sales/sales.module';
     },
     {
       provide: APP_PIPE,
-      useFactory: () =>
-        new ValidationPipe({
-          whitelist: true,
-          forbidNonWhitelisted: true,
-          transform: true,
-          transformOptions: {
-            enableImplicitConversion: true,
-          },
-          exceptionFactory(errors: ValidationError[]) {
-            const formattedErrors = errors.map((error) => ({
-              field: error.property,
-              message:
-                Object.values(error.constraints || {})[0] ||
-                'Erro de validação.',
-            }));
-
-            return new BadRequestException({
-              message: 'Erro de validação.',
-              errors: formattedErrors,
-            });
-          },
-        }),
+      useClass: ZodValidationPipe,
     },
   ],
 })
