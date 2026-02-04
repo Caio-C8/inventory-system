@@ -1,11 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { LoginSchema } from '@repo/types';
+import { createZodDto } from 'nestjs-zod';
 
-export class LoginDto {
-  @IsEmail({}, { message: 'E-mail inválido.' })
-  @IsNotEmpty({ message: 'Preencha o campo e-mail.' })
-  email!: string;
-
-  @IsString({ message: 'Senha inválida.' })
-  @IsNotEmpty({ message: 'Preencha o campo senha.' })
-  password!: string;
-}
+export class LoginDto extends createZodDto(LoginSchema) {}

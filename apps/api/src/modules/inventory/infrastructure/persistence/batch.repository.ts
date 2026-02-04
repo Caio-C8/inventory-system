@@ -2,33 +2,53 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/persistence/prisma.service';
 import { Batch } from '../../core/models/batch.model';
 import {
-  CreateBatchParams,
-  GetBatchesParams,
-  UpdateBatchParams,
+  CreateBatchInput,
+  GetBatchesInput,
+  UpdateBatchInput,
 } from '../../core/models/inventory.types';
 import { Prisma } from '@prisma/client';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { PaginatedResult } from '@repo/types';
 
 @Injectable()
 export class BatchRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateBatchParams): Promise<Batch> {
-    const { product_id, ...batch } = data;
+  private mapToBatch(prismaBatch: any): Batch {
+    return {
+      id: prismaBatch.id,
+      tax_invoice_number: prismaBatch.tax_invoice_number,
+      unit_cost_price: Number(prismaBatch.unit_cost_price),
+      expiration_date: prismaBatch.expiration_date,
+      purchase_date: prismaBatch.purchase_date,
+      current_quantity: prismaBatch.current_quantity,
+      purchase_quantity: prismaBatch.purchase_date,
+      product_id: prismaBatch.product_id,
+    };
+  }
 
-    return await this.prisma.batch.create({
+  async create(data: CreateBatchInput): Promise<Batch> {
+    const { product_id, ...batchData } = data;
+
+    const batch = await this.prisma.batch.create({
       data: {
-        ...batch,
-        current_quantity: batch.purchase_quantity,
+        ...batchData,
+        current_quantity: batchData.purchase_quantity,
         product: {
           connect: { id: product_id },
         },
       },
     });
+
+    return this.mapToBatch(batch);
   }
 
-  async update(id: number, data: UpdateBatchParams): Promise<Batch> {
-    return await this.prisma.batch.update({ where: { id }, data });
+  async update(id: number, data: UpdateBatchInput): Promise<Batch> {
+    const batch = await this.prisma.batch.update({
+      where: { id },
+      data,
+    });
+
+    return this.mapToBatch(batch);
   }
 
   async updateQuantity(
@@ -48,12 +68,16 @@ export class BatchRepository {
   }
 
   async findOne(id: number): Promise<Batch | null> {
-    return await this.prisma.batch.findUnique({ where: { id } });
+    const batch = await this.prisma.batch.findUnique({
+      where: { id },
+    });
+
+    return batch ? this.mapToBatch(batch) : null;
   }
 
   async findByProduct(
     productId: number,
-    params: GetBatchesParams,
+    params: GetBatchesInput,
   ): Promise<PaginatedResult<Batch>> {
     const { page, limit } = params;
 
@@ -73,7 +97,7 @@ export class BatchRepository {
     ]);
 
     return {
-      data,
+      data: data.map((batch) => this.mapToBatch(batch)),
       meta: {
         total,
         page,
@@ -83,7 +107,7 @@ export class BatchRepository {
     };
   }
 
-  async findAll(params: GetBatchesParams): Promise<PaginatedResult<Batch>> {
+  async findAll(params: GetBatchesInput): Promise<PaginatedResult<Batch>> {
     const { page, limit } = params;
 
     const skip = (page - 1) * limit;
@@ -101,7 +125,7 @@ export class BatchRepository {
     ]);
 
     return {
-      data,
+      data: data.map((batch) => this.mapToBatch(batch)),
       meta: {
         total,
         page,
@@ -118,7 +142,7 @@ export class BatchRepository {
   ): Promise<Batch[]> {
     const client = tx || this.prisma;
 
-    return await client.batch.findMany({
+    const batches = await client.batch.findMany({
       where: {
         product_id: productId,
         current_quantity: { gt: 0 },
@@ -126,6 +150,8 @@ export class BatchRepository {
       },
       orderBy: { expiration_date: 'asc' },
     });
+
+    return batches.map((batch) => this.mapToBatch(batch));
   }
 
   async delete(id: number): Promise<void> {
@@ -143,7 +169,7 @@ export class BatchRepository {
     return result._sum.current_quantity || 0;
   }
 
-  private getWhereCondition(params: GetBatchesParams) {
+  private getWhereCondition(params: GetBatchesInput) {
     const {
       min_expiration_date,
       max_expiration_date,

@@ -16,6 +16,8 @@ import { CreateBatchDto } from './dtos/create-batch.dto';
 import { UpdateBatchDto } from './dtos/update-batch.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { GetBatchesDto } from './dtos/get-batches.dto';
+import { Batch } from '../core/models/batch.model';
+import { PaginatedResult } from '@repo/types';
 
 @Controller('batches')
 export class BatchController {
@@ -23,7 +25,7 @@ export class BatchController {
 
   @Post()
   @ResponseMessage('Lote criado com sucesso.')
-  async create(@Body() createBatchDto: CreateBatchDto) {
+  async create(@Body() createBatchDto: CreateBatchDto): Promise<Batch> {
     return await this.batchService.create(createBatchDto);
   }
 
@@ -32,12 +34,12 @@ export class BatchController {
   async update(
     @Param('id', ParseIntPipe) batchId: number,
     @Body() updateBatchDto: UpdateBatchDto,
-  ) {
+  ): Promise<Batch> {
     return await this.batchService.update(batchId, updateBatchDto);
   }
 
   @Get('/:id')
-  async getOne(@Param('id', ParseIntPipe) batchId: number) {
+  async getOne(@Param('id', ParseIntPipe) batchId: number): Promise<Batch> {
     return await this.batchService.findOne(batchId);
   }
 
@@ -45,19 +47,21 @@ export class BatchController {
   async getAllByProduct(
     @Param('productId', ParseIntPipe) productId: number,
     @Query() getBatchesDto: GetBatchesDto,
-  ) {
+  ): Promise<PaginatedResult<Batch>> {
     return await this.batchService.findAllByProduct(productId, getBatchesDto);
   }
 
   @Get()
-  async getAll(@Query() getBatchesDto: GetBatchesDto) {
+  async getAll(
+    @Query() getBatchesDto: GetBatchesDto,
+  ): Promise<PaginatedResult<Batch>> {
     return await this.batchService.findAll(getBatchesDto);
   }
 
   @Delete('/:id')
   @ResponseMessage('Lote deletado com sucesso.')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id', ParseIntPipe) batchId: number) {
+  async delete(@Param('id', ParseIntPipe) batchId: number): Promise<void> {
     await this.batchService.delete(batchId);
   }
 
@@ -65,7 +69,7 @@ export class BatchController {
   @ResponseMessage('Estoque do produto sincronizado com sucesso.')
   async syncStockByProduct(
     @Param('productId', ParseIntPipe) productId: number,
-  ) {
+  ): Promise<{ synced_stock: number }> {
     return await this.batchService.syncStockByProduct(productId);
   }
 }

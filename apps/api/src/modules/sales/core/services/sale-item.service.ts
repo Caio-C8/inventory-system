@@ -4,12 +4,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { SaleItemRepository } from '../../infrastructure/persistence/sale-item.repository';
-import { SaleRepository } from '../../infrastructure/persistence/sale.repository'; // Para atualizar o total
+import { SaleRepository } from '../../infrastructure/persistence/sale.repository';
 import { BatchService } from '../../../inventory/core/services/batch.service';
 import { ProductService } from '../../../catalog/core/services/product.service';
 import { PrismaService } from 'src/common/persistence/prisma.service';
-import { SaleStatus } from '../models/sale.model';
-import { UpdateSaleItemParams } from '../models/sales.types';
+import { SaleStatus, SaleWithItems } from '../models/sale.model';
+import { UpdateSaleItemInput } from '../models/sales.types';
 
 @Injectable()
 export class SaleItemService {
@@ -21,7 +21,10 @@ export class SaleItemService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async update(saleItemId: number, updateData: UpdateSaleItemParams) {
+  async update(
+    saleItemId: number,
+    updateData: UpdateSaleItemInput,
+  ): Promise<SaleWithItems> {
     const currentItem = await this.saleItemRepository.findOne(saleItemId);
 
     if (!currentItem) {
@@ -43,7 +46,7 @@ export class SaleItemService {
       targetProductId !== currentItem.product_id ||
       targetQuantity !== currentItem.quantity;
 
-    return await this.prisma.$transaction(async (tx) => {
+    return (await this.prisma.$transaction(async (tx) => {
       let newUnitCostSnapshot = Number(currentItem.unit_cost_snapshot);
 
       if (hasInventoryChange) {
@@ -117,7 +120,7 @@ export class SaleItemService {
           tx,
         );
       }
-    });
+    })) as unknown as SaleWithItems;
   }
 
   async delete(saleItemId: number): Promise<void> {

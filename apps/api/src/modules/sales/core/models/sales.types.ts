@@ -1,92 +1,13 @@
-import { SaleStatus } from './sale.model';
-
-export interface StockAllocationResult {
-  product_id: number;
-  quantity_requested: number;
-  unit_cost_snapshot: number;
-  allocations: Array<{
-    batch_id: number;
-    quantity: number;
-  }>;
-}
-
-export interface CreateSale {
-  channel: string;
-  sale_date: Date;
-  status: SaleStatus;
-  customer_id: number;
-  total_value: number;
-  items: Array<{
-    product_id: number;
-    quantity: number;
-    unit_sale_price: number;
-    unit_cost_snapshot: number;
-    allocations: Array<{
-      batch_id: number;
-      quantity: number;
-    }>;
-  }>;
-}
-
-export interface CreateSaleItemParams {
-  product_id: number;
-  quantity: number;
-  unit_sale_price: number;
-}
-
-export interface CreateSaleParams {
-  total_value?: number;
-  channel: string;
-  sale_date: Date;
-  status: SaleStatus;
-  customer_id: number;
-  saleItems: CreateSaleItemParams[];
-}
-
-export interface UpdateSalePrams {
-  channel?: string;
-  sale_date?: Date;
-  status?: SaleStatus;
-  customer_id?: number;
-}
-
-export interface UpdateSaleItemParams {
-  product_id?: number;
-  quantity?: number;
-  unit_sale_price?: number;
-}
-
-export interface GetSalesParams {
-  page: number;
-  limit: number;
-  search?: string;
-  status?: SaleStatus;
-  min_sale_date?: Date;
-  max_sale_date?: Date;
-  min_total_value?: number;
-  max_total_value?: number;
-  channel?: string;
-}
-
-export interface GetSalesForReportParams {
-  start_date: Date;
-  end_date: Date;
-  channel?: string;
-}
-
-export interface SalesReportMetric {
-  channel: string;
-  count: number;
-  total_revenue: number;
-  total_cost: number;
-  total_profit: number;
-}
-
-export interface SalesReportResponse {
-  period: {
-    start: Date;
-    end: Date;
-  };
-  by_channel: SalesReportMetric[];
-  grand_total: SalesReportMetric;
-}
+export {
+  type StockAllocationResult,
+  type CreateSaleInput,
+  type CreateSaleItemInput,
+  type UpdateSaleInput,
+  type UpdateSaleItemInput,
+  type GetSalesInput,
+  type GetSalesForReportInput,
+  type SalesReportMetric,
+  type SalesReportResponse,
+  type SaleItemInternal,
+  type SaleInternalCreate,
+} from '@repo/types';

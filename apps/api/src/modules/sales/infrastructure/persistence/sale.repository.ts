@@ -2,10 +2,10 @@ import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/persistence/prisma.service';
 import { Prisma } from '@prisma/client';
 import {
-  CreateSale,
-  GetSalesForReportParams,
-  GetSalesParams,
-  UpdateSalePrams,
+  SaleInternalCreate,
+  GetSalesForReportInput,
+  GetSalesInput,
+  UpdateSaleInput,
 } from '../../core/models/sales.types';
 import {
   CompleteSale,
@@ -14,14 +14,17 @@ import {
   SaleWithItems,
   SaleWithAllocations,
 } from '../../core/models/sale.model';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { PaginatedResult, SaleItemWithAllocations } from '@repo/types';
 import { normalizeString } from '@repo/utils';
 
 @Injectable()
 export class SaleRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateSale, tx: Prisma.TransactionClient): Promise<Sale> {
+  async create(
+    data: SaleInternalCreate,
+    tx: Prisma.TransactionClient,
+  ): Promise<Sale> {
     const sale = await tx.sale.create({
       data: {
         channel: data.channel,
@@ -60,14 +63,14 @@ export class SaleRepository {
       }
     }
 
-    return sale;
+    return this.mapToSale(sale);
   }
 
   async update(
     id: number,
-    data: UpdateSalePrams,
+    data: UpdateSaleInput,
   ): Promise<CompleteSale | SaleWithItems> {
-    return await this.prisma.sale.update({
+    const sale = await this.prisma.sale.update({
       where: { id },
       data,
       include: {
@@ -75,6 +78,8 @@ export class SaleRepository {
         saleItems: true,
       },
     });
+
+    return this.mapToCompleteSale(sale);
   }
 
   async updateStatus(
@@ -84,7 +89,7 @@ export class SaleRepository {
   ): Promise<CompleteSale | SaleWithItems> {
     const client = tx || this.prisma;
 
-    return await client.sale.update({
+    const sale = await client.sale.update({
       where: { id },
       data: {
         status: status,
@@ -94,33 +99,39 @@ export class SaleRepository {
         saleItems: true,
       },
     });
+
+    return this.mapToCompleteSale(sale);
   }
 
   async updateTotalValue(
     id: number,
     newTotal: number,
     tx: Prisma.TransactionClient,
-  ) {
-    return await tx.sale.update({
+  ): Promise<SaleWithItems> {
+    const sale = await tx.sale.update({
       where: { id },
       data: { total_value: newTotal },
       include: {
         saleItems: true,
       },
     });
+
+    return this.mapToCompleteSale(sale);
   }
 
   async findOne(id: number): Promise<CompleteSale | SaleWithItems | null> {
-    return await this.prisma.sale.findUnique({
+    const sale = await this.prisma.sale.findUnique({
       where: { id },
       include: {
         customer: true,
         saleItems: true,
       },
     });
+
+    return sale ? this.mapToCompleteSale(sale) : null;
   }
 
-  async findAll(params: GetSalesParams): Promise<PaginatedResult<Sale>> {
+  async findAll(params: GetSalesInput): Promise<PaginatedResult<Sale>> {
     const {
       page,
       limit,
@@ -194,7 +205,7 @@ export class SaleRepository {
     ]);
 
     return {
-      data,
+      data: data.map((sale) => this.mapToCompleteSale(sale)),
       meta: {
         total,
         page,
@@ -205,7 +216,7 @@ export class SaleRepository {
   }
 
   async findSaleWithItems(id: number): Promise<SaleWithAllocations | null> {
-    return await this.prisma.sale.findUnique({
+    const sale = await this.prisma.sale.findUnique({
       where: { id },
       include: {
         saleItems: {
@@ -215,10 +226,12 @@ export class SaleRepository {
         },
       },
     });
+
+    return sale ? this.mapToSaleWithAllocations(sale) : null;
   }
 
   async findSalesForReport(
-    params: GetSalesForReportParams,
+    params: GetSalesForReportInput,
   ): Promise<SaleWithItems[]> {
     const { start_date, end_date, channel } = params;
 
@@ -234,11 +247,55 @@ export class SaleRepository {
       where.channel = channel;
     }
 
-    return await this.prisma.sale.findMany({
+    const sales = await this.prisma.sale.findMany({
       where,
       include: {
         saleItems: true,
       },
     });
+
+    return sales.map((sale) => this.mapToCompleteSale(sale));
+  }
+
+  private mapToSale(prismaSale: any): Sale {
+    return {
+      id: prismaSale.id,
+      status: prismaSale.status as SaleStatus,
+      channel: prismaSale.channel,
+      total_value: Number(prismaSale.total_value),
+      sale_date: prismaSale.sale_date,
+      customer_id: prismaSale.customer_id,
+    };
+  }
+
+  private mapToSaleItem(prismaSaleItem: any): SaleItemWithAllocations {
+    return {
+      id: prismaSaleItem.id,
+      unit_cost_snapshot: Number(prismaSaleItem.unit_cost_snapshot),
+      quantity: prismaSaleItem.quantity,
+      unit_sale_price: Number(prismaSaleItem.unit_sale_price),
+      product_id: prismaSaleItem.product_id,
+      sale_id: prismaSaleItem.sale_id,
+      batchAllocations: prismaSaleItem.batchAllocations || [],
+    };
+  }
+
+  private mapToCompleteSale(prismaSale: any): CompleteSale {
+    return {
+      ...this.mapToSale(prismaSale),
+      customer: prismaSale.customer || undefined,
+      saleItems:
+        prismaSale.saleItems?.map((item: any) => this.mapToSaleItem(item)) ||
+        [],
+    };
+  }
+
+  private mapToSaleWithAllocations(prismaSale: any): SaleWithAllocations {
+    return {
+      ...this.mapToSale(prismaSale),
+      saleItems:
+        prismaSale.saleItems?.map((item: any) => this.mapToSaleItem(item)) ||
+        [],
+    };
   }
 }

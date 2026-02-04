@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/persistence/prisma.service';
 import { Prisma } from '@prisma/client';
+import { SaleItem, SaleItemWithRelations } from '../../core/models/sale.model';
+import { UpdateSaleItemInput } from '../../core/models/sales.types';
 
 @Injectable()
 export class SaleItemRepository {
@@ -8,29 +10,29 @@ export class SaleItemRepository {
 
   async update(
     id: number,
-    data: {
-      product_id?: number;
-      quantity?: number;
-      unit_sale_price?: number;
-      unit_cost_snapshot?: number;
-    },
+    data: UpdateSaleItemInput,
     tx?: Prisma.TransactionClient,
-  ) {
+  ): Promise<SaleItem> {
     const client = tx || this.prisma;
-    return await client.saleItem.update({
+
+    const saleItem = await client.saleItem.update({
       where: { id },
       data,
     });
+
+    return this.mapToSaleItem(saleItem);
   }
 
-  async findOne(id: number) {
-    return await this.prisma.saleItem.findUnique({
+  async findOne(id: number): Promise<SaleItemWithRelations | null> {
+    const saleItem = await this.prisma.saleItem.findUnique({
       where: { id },
       include: {
         batchAllocations: true,
         sale: true,
       },
     });
+
+    return saleItem ? this.mapToSaleItemWithRelations(saleItem) : null;
   }
 
   async delete(id: number, tx?: Prisma.TransactionClient): Promise<void> {
@@ -42,8 +44,8 @@ export class SaleItemRepository {
     saleItemId: number,
     allocations: { batch_id: number; quantity: number }[],
     tx: Prisma.TransactionClient,
-  ) {
-    return await tx.allocationSaleItem.createMany({
+  ): Promise<void> {
+    await tx.allocationSaleItem.createMany({
       data: allocations.map((alloc) => ({
         sale_item_id: saleItemId,
         batch_id: alloc.batch_id,
@@ -52,9 +54,38 @@ export class SaleItemRepository {
     });
   }
 
-  async deleteAllocations(saleItemId: number, tx: Prisma.TransactionClient) {
-    return await tx.allocationSaleItem.deleteMany({
+  async deleteAllocations(
+    saleItemId: number,
+    tx: Prisma.TransactionClient,
+  ): Promise<void> {
+    await tx.allocationSaleItem.deleteMany({
       where: { sale_item_id: saleItemId },
     });
+  }
+
+  private mapToSaleItem(prismaSaleItem: any): SaleItem {
+    return {
+      id: prismaSaleItem.id,
+      unit_cost_snapshot: Number(prismaSaleItem.unit_cost_snapshot),
+      quantity: prismaSaleItem.quantity,
+      unit_sale_price: Number(prismaSaleItem.unit_sale_price),
+      product_id: prismaSaleItem.product_id,
+      sale_id: prismaSaleItem.sale_id,
+    };
+  }
+
+  private mapToSaleItemWithRelations(
+    prismaSaleItem: any,
+  ): SaleItemWithRelations {
+    return {
+      ...this.mapToSaleItem(prismaSaleItem),
+      batchAllocations: prismaSaleItem.batchAllocations || [],
+      sale: prismaSaleItem.sale
+        ? {
+            ...prismaSaleItem.sale,
+            total_value: Number(prismaSaleItem.sale.total_value),
+          }
+        : undefined,
+    };
   }
 }

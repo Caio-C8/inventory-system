@@ -14,7 +14,7 @@ import { CreateProductDto } from './dtos/create-product.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { Product } from '../core/models/product.model';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { PaginatedResult } from '@repo/types';
 import { GetProductsDto } from './dtos/get-products.dto';
 
 @Controller('products')
@@ -50,13 +50,15 @@ export class ProductController {
 
   @Delete('/:id')
   @ResponseMessage('Produto removido com sucesso.')
-  async delete(@Param('id', ParseIntPipe) productId: number) {
+  async delete(@Param('id', ParseIntPipe) productId: number): Promise<Product> {
     return this.productService.delete(productId);
   }
 
   @Patch('/:id/restore')
   @ResponseMessage('Produto restaurado com sucesso.')
-  async restore(@Param('id', ParseIntPipe) productId: number) {
+  async restore(
+    @Param('id', ParseIntPipe) productId: number,
+  ): Promise<Product> {
     return this.productService.restore(productId);
   }
 }

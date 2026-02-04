@@ -1,17 +1,4 @@
-import { Type } from 'class-transformer';
-import { IsDate, IsOptional, IsString } from 'class-validator';
+import { UpdateCustomerSchema } from '@repo/types';
+import { createZodDto } from 'nestjs-zod';
 
-export class UpdateCustomerDto {
-  @IsString({ message: 'Nome inválido.' })
-  @IsOptional()
-  name?: string;
-
-  @IsDate({ message: 'Data de aniversário inválida.' })
-  @Type(() => Date)
-  @IsOptional()
-  birth_date?: Date;
-
-  @IsString({ message: 'Contato inválido.' })
-  @IsOptional()
-  contact_info?: string;
-}
+export class UpdateCustomerDto extends createZodDto(UpdateCustomerSchema) {}

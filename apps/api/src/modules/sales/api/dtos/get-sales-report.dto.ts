@@ -1,17 +1,4 @@
-import { IsDate, IsOptional, IsString } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { createZodDto } from 'nestjs-zod';
+import { GetSalesForReportSchema } from '@repo/types';
 
-export class GetSalesReportDto {
-  @Type(() => Date)
-  @IsDate()
-  start_date!: Date;
-
-  @Type(() => Date)
-  @IsDate()
-  end_date!: Date;
-
-  @IsOptional()
-  @IsString()
-  @Transform(({ value }) => value.toUpperCase())
-  channel?: string;
-}
+export class GetSalesReportDto extends createZodDto(GetSalesForReportSchema) {}

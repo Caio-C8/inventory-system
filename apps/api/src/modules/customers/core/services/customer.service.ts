@@ -5,19 +5,19 @@ import {
 } from '@nestjs/common';
 import { CustomerRepository } from '../../infrastructure/persistence/customer.repository';
 import {
-  CreateCustomerParams,
-  UpdateCustomerParams,
+  CreateCustomerInput,
+  UpdateCustomerInput,
+  GetCustomersInput,
 } from '../models/customers.types';
 import { Customer } from '../models/customer.model';
-import { GetCustomersParams } from '../models/customers.types';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { PaginatedResult } from '@repo/types';
 import { normalizeString } from '@repo/utils';
 
 @Injectable()
 export class CustomerService {
   constructor(private readonly customerRepository: CustomerRepository) {}
 
-  async create(customerData: CreateCustomerParams): Promise<Customer> {
+  async create(customerData: CreateCustomerInput): Promise<Customer> {
     return await this.customerRepository.create({
       ...customerData,
       name_search: normalizeString(customerData.name),
@@ -26,7 +26,7 @@ export class CustomerService {
 
   async update(
     customerId: number,
-    customerData: UpdateCustomerParams,
+    customerData: UpdateCustomerInput,
   ): Promise<Customer> {
     const customer = await this.customerRepository.findOne(customerId);
 
@@ -47,7 +47,7 @@ export class CustomerService {
   }
 
   async findAll(
-    getCustomersParams: GetCustomersParams,
+    getCustomersParams: GetCustomersInput,
   ): Promise<PaginatedResult<Customer>> {
     const result = await this.customerRepository.findAll(getCustomersParams);
 

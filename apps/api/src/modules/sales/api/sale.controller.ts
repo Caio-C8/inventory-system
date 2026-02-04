@@ -14,7 +14,7 @@ import { CreateSaleDto } from './dtos/create-sale.dto';
 import { CompleteSale, Sale, SaleWithItems } from '../core/models/sale.model';
 import { UpdateSaleDto } from './dtos/update-sale.dto';
 import { GetSalesDto } from './dtos/get-sales.dto';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { PaginatedResult } from '@repo/types';
 import { SalesReportResponse } from '../core/models/sales.types';
 import { GetSalesReportDto } from './dtos/get-sales-report.dto';
 

@@ -1,17 +1,4 @@
-import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { CreateCustomerSchema } from '@repo/types';
+import { createZodDto } from 'nestjs-zod';
 
-export class CreateCustomerDto {
-  @IsString({ message: 'Nome inválido.' })
-  @IsNotEmpty({ message: 'Preencha o campo nome.' })
-  name!: string;
-
-  @IsDate({ message: 'Data de aniversário inválida.' })
-  @Type(() => Date)
-  @IsOptional()
-  birth_date?: Date;
-
-  @IsString({ message: 'Contato inválido.' })
-  @IsOptional()
-  contact_info?: string;
-}
+export class CreateCustomerDto extends createZodDto(CreateCustomerSchema) {}

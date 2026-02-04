@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { LoginDto } from './dtos/login.dto';
 import { AuthService } from '../core/services/auth.service';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';

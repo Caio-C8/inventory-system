@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/common/persistence/prisma.service';
 import { Product, ProductStatusFilter } from '../../core/models/product.model';
-import { GetProductsParams } from '../../core/models/catalog.types';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { GetProductsInput } from '../../core/models/catalog.types';
+import { PaginatedResult } from '@repo/types';
 import { normalizeString } from '@repo/utils';
 
 @Injectable()
@@ -11,29 +11,35 @@ export class ProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: Prisma.ProductCreateInput): Promise<Product> {
-    return await this.prisma.product.create({ data });
+    const product = await this.prisma.product.create({ data });
+
+    return this.mapToProduct(product);
   }
 
   async update(id: number, data: Prisma.ProductUpdateInput): Promise<Product> {
-    return await this.prisma.product.update({
+    const product = await this.prisma.product.update({
       where: { id },
       data,
       include: {
         batches: true,
       },
     });
+
+    return this.mapToProduct(product);
   }
 
   async findOne(id: number): Promise<Product | null> {
-    return await this.prisma.product.findUnique({
+    const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
         batches: true,
       },
     });
+
+    return product ? this.mapToProduct(product) : null;
   }
 
-  async findAll(params: GetProductsParams): Promise<PaginatedResult<Product>> {
+  async findAll(params: GetProductsInput): Promise<PaginatedResult<Product>> {
     const {
       page,
       limit,
@@ -90,7 +96,7 @@ export class ProductRepository {
     ]);
 
     return {
-      data,
+      data: data.map((product) => this.mapToProduct(product)),
       meta: {
         total,
         page,
@@ -101,7 +107,7 @@ export class ProductRepository {
   }
 
   async softDelete(id: number): Promise<Product> {
-    return await this.prisma.product.update({
+    const product = await this.prisma.product.update({
       where: { id },
       data: {
         deleted_at: new Date(),
@@ -110,10 +116,12 @@ export class ProductRepository {
         batches: true,
       },
     });
+
+    return this.mapToProduct(product);
   }
 
   async restore(id: number): Promise<Product> {
-    return await this.prisma.product.update({
+    const product = await this.prisma.product.update({
       where: { id },
       data: {
         deleted_at: null,
@@ -122,6 +130,8 @@ export class ProductRepository {
         batches: true,
       },
     });
+
+    return this.mapToProduct(product);
   }
 
   async updateStock(
@@ -158,10 +168,29 @@ export class ProductRepository {
       | { barcode: { equals: string } }
     )[],
   ): Promise<Product[]> {
-    return await this.prisma.product.findMany({
+    const products = await this.prisma.product.findMany({
       where: {
         OR: orConditions,
       },
     });
+
+    return products.map((product) => this.mapToProduct(product));
+  }
+
+  private mapToProduct(prismaProduct: any): Product {
+    return {
+      id: prismaProduct.id,
+      name: prismaProduct.name,
+      code: prismaProduct.code,
+      barcode: prismaProduct.barcode,
+      name_search: prismaProduct.name_search,
+      sale_price: Number(prismaProduct.sale_price),
+      current_stock: prismaProduct.current_stock,
+      deleted_at: prismaProduct.deleted_at ?? undefined,
+      batches: prismaProduct.batches?.map((batch: any) => ({
+        ...batch,
+        unit_cost_price: Number(batch.unit_cost_price),
+      })),
+    };
   }
 }

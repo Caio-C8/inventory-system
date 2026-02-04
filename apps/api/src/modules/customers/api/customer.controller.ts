@@ -15,7 +15,7 @@ import { CreateCustomerDto } from './dtos/create-customer.dto';
 import { UpdateCustomerDto } from './dtos/update-customer.dto';
 import { ResponseMessage } from 'src/common/decorators/response-message.decorator';
 import { GetCustomersDto } from './dtos/get-customers.dto';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { PaginatedResult } from '@repo/types';
 
 @Controller('customers')
 export class CustomerController {

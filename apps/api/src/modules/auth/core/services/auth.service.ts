@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { LoginParams, LoginResult } from '../models/auth.types';
+import { LoginInput, LoginResult } from '../models/auth.types';
 import { User } from '../models/user.model';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async login(credentials: LoginParams): Promise<LoginResult> {
+  async login(credentials: LoginInput): Promise<LoginResult> {
     const user = this.validateUser(credentials.email, credentials.password);
 
     if (!user) {

@@ -1,18 +1,4 @@
-import { IsInt, IsNumber, IsOptional, IsPositive, Min } from 'class-validator';
+import { UpdateSaleItemSchema } from '@repo/types';
+import { createZodDto } from 'nestjs-zod';
 
-export class UpdateSaleItemDto {
-  @IsOptional()
-  @IsInt()
-  @IsPositive()
-  product_id?: number;
-
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  quantity?: number;
-
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  unit_sale_price?: number;
-}
+export class UpdateSaleItemDto extends createZodDto(UpdateSaleItemSchema) {}

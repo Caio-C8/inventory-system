@@ -1,3 +1,1 @@
-import { Batch as PrismaBatch } from '@prisma/client';
-
-export type Batch = PrismaBatch;
+export { type Batch } from '@repo/types';

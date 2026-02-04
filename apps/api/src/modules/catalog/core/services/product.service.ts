@@ -5,13 +5,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
-  CreateProductParams,
-  GetProductsParams,
-  UpdateProductParams,
+  CreateProductInput,
+  GetProductsInput,
+  UpdateProductInput,
 } from '../models/catalog.types';
 import { Product } from '../models/product.model';
 import { ProductRepository } from '../../infrastructure/persistence/product.repository';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { PaginatedResult } from '@repo/types';
 import { Prisma } from '@prisma/client';
 import { normalizeString } from '@repo/utils';
 
@@ -19,7 +19,7 @@ import { normalizeString } from '@repo/utils';
 export class ProductService {
   constructor(private readonly productRepository: ProductRepository) {}
 
-  async create(productData: CreateProductParams): Promise<Product> {
+  async create(productData: CreateProductInput): Promise<Product> {
     const conflicts = await this.findConflicts(productData);
 
     if (conflicts.length > 0) {
@@ -34,7 +34,7 @@ export class ProductService {
 
   async update(
     productId: number,
-    productData: UpdateProductParams,
+    productData: UpdateProductInput,
   ): Promise<Product> {
     if (Object.keys(productData).length === 0) {
       throw new BadRequestException('Nenhum dado fornecido para atualização.');
@@ -75,13 +75,14 @@ export class ProductService {
   }
 
   async findAll(
-    getProductParams: GetProductsParams,
+    getProductParams: GetProductsInput,
   ): Promise<PaginatedResult<Product>> {
-    const result = await this.productRepository.findAll(getProductParams);
+    const { data, meta } =
+      await this.productRepository.findAll(getProductParams);
 
     return {
-      data: result.data,
-      meta: result.meta,
+      data,
+      meta,
     };
   }
 
@@ -144,7 +145,7 @@ export class ProductService {
   }
 
   private async findConflicts(
-    data: CreateProductParams | UpdateProductParams,
+    data: CreateProductInput | UpdateProductInput,
   ): Promise<Product[]> {
     const orConditions = [];
 
@@ -169,7 +170,7 @@ export class ProductService {
 
   private identifyConflicts(
     conflicts: Product[],
-    data: CreateProductParams | UpdateProductParams,
+    data: CreateProductInput | UpdateProductInput,
   ): void {
     const errors: { field: string; message: string }[] = [];
 

@@ -8,13 +8,14 @@ import { BatchService } from '../../../inventory/core/services/batch.service';
 import { ProductService } from '../../../catalog/core/services/product.service';
 import { CustomerService } from '../../../customers/core/services/customer.service';
 import {
-  CreateSale,
-  CreateSaleParams,
-  GetSalesForReportParams,
-  GetSalesParams,
+  CreateSaleInput,
+  GetSalesForReportInput,
+  GetSalesInput,
   SalesReportMetric,
   SalesReportResponse,
-  UpdateSalePrams,
+  UpdateSaleInput,
+  SaleItemInternal,
+  SaleInternalCreate,
 } from '../models/sales.types';
 import { PrismaService } from 'src/common/persistence/prisma.service';
 import {
@@ -23,7 +24,7 @@ import {
   SaleStatus,
   SaleWithItems,
 } from '../models/sale.model';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { PaginatedResult } from '@repo/types';
 
 @Injectable()
 export class SaleService {
@@ -35,7 +36,7 @@ export class SaleService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async create(saleData: CreateSaleParams): Promise<Sale> {
+  async create(saleData: CreateSaleInput): Promise<Sale> {
     const customer = await this.customerService.findOne(saleData.customer_id);
 
     if (!customer) {
@@ -46,7 +47,7 @@ export class SaleService {
       throw new BadRequestException('A venda deve ter pelo menos um item.');
     }
 
-    const preparedItems: CreateSale['items'] = [];
+    const preparedItems: SaleItemInternal[] = [];
 
     let finalTotalValue = 0;
 
@@ -81,7 +82,7 @@ export class SaleService {
       }
     }
 
-    const createSaleData: CreateSale = {
+    const createSaleData: SaleInternalCreate = {
       channel: saleData.channel,
       sale_date: saleData.sale_date,
       status: saleData.status,
@@ -115,7 +116,7 @@ export class SaleService {
 
   async update(
     saleId: number,
-    saleData: UpdateSalePrams,
+    saleData: UpdateSaleInput,
   ): Promise<CompleteSale | SaleWithItems> {
     const sale = await this.saleRepository.findOne(saleId);
 
@@ -136,9 +137,7 @@ export class SaleService {
     return sale;
   }
 
-  async findAll(
-    getSalesParams: GetSalesParams,
-  ): Promise<PaginatedResult<Sale>> {
+  async findAll(getSalesParams: GetSalesInput): Promise<PaginatedResult<Sale>> {
     const result = await this.saleRepository.findAll(getSalesParams);
 
     return {
@@ -148,7 +147,7 @@ export class SaleService {
   }
 
   async generateReport(
-    paramsForReport: GetSalesForReportParams,
+    paramsForReport: GetSalesForReportInput,
   ): Promise<SalesReportResponse> {
     const sales = await this.saleRepository.findSalesForReport(paramsForReport);
 

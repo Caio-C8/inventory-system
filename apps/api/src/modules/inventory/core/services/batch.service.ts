@@ -5,14 +5,13 @@ import {
 } from '@nestjs/common';
 import { BatchRepository } from '../../infrastructure/persistence/batch.repository';
 import {
-  BatchAllocation,
-  CreateBatchParams,
-  GetBatchesParams,
-  UpdateBatchParams,
+  CreateBatchInput,
+  GetBatchesInput,
+  UpdateBatchInput,
 } from '../models/inventory.types';
 import { Batch } from '../models/batch.model';
 import { ProductService } from 'src/modules/catalog/core/services/product.service';
-import { PaginatedResult } from 'src/common/models/paginated-result.interface';
+import { PaginatedResult } from '@repo/types';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -22,7 +21,7 @@ export class BatchService {
     private readonly productService: ProductService,
   ) {}
 
-  async create(batchData: CreateBatchParams): Promise<Batch> {
+  async create(batchData: CreateBatchInput): Promise<Batch> {
     try {
       await this.productService.findOne(batchData.product_id);
     } catch (error) {
@@ -41,7 +40,7 @@ export class BatchService {
     return batch;
   }
 
-  async update(batchId: number, batchData: UpdateBatchParams): Promise<Batch> {
+  async update(batchId: number, batchData: UpdateBatchInput): Promise<Batch> {
     const oldBatch = await this.batchRepository.findOne(batchId);
 
     if (!oldBatch) {
@@ -117,7 +116,7 @@ export class BatchService {
 
   async findAllByProduct(
     productId: number,
-    getBatchesPrams: GetBatchesParams,
+    getBatchesPrams: GetBatchesInput,
   ): Promise<PaginatedResult<Batch>> {
     try {
       await this.productService.findOne(productId);
@@ -139,7 +138,7 @@ export class BatchService {
   }
 
   async findAll(
-    getBatchesPrams: GetBatchesParams,
+    getBatchesPrams: GetBatchesInput,
   ): Promise<PaginatedResult<Batch>> {
     const result = await this.batchRepository.findAll(getBatchesPrams);
 
@@ -222,7 +221,7 @@ export class BatchService {
 
     if (remainingQuantity > 0) {
       throw new BadRequestException(
-        `Estoque insuficiente para completar a venda. Faltam ${remainingQuantity} unidades.`,
+        `Estoque insuficiente do produto ${productId} para completar a venda. Faltam ${remainingQuantity} unidades.`,
       );
     }
 
