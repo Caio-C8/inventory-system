@@ -15,15 +15,15 @@ export const useLogin = () => {
 
       return response.data;
     },
-    onSuccess: (data) => {
-      if (data.access_token) {
-        Cookies.set('token', data.access_token, {
+    onSuccess: (response) => {
+      if (response.data.access_token) {
+        Cookies.set('token', response.data.access_token, {
           expires: 1,
           secure: process.env.NODE_ENV === 'production',
         });
       }
 
-      toast.success(data.message);
+      toast.success(response.message);
 
       router.push('/');
     },
