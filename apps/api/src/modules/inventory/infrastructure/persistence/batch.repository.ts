@@ -13,19 +13,6 @@ import { PaginatedResult } from '@repo/types';
 export class BatchRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  private mapToBatch(prismaBatch: any): Batch {
-    return {
-      id: prismaBatch.id,
-      tax_invoice_number: prismaBatch.tax_invoice_number,
-      unit_cost_price: Number(prismaBatch.unit_cost_price),
-      expiration_date: prismaBatch.expiration_date,
-      purchase_date: prismaBatch.purchase_date,
-      current_quantity: prismaBatch.current_quantity,
-      purchase_quantity: prismaBatch.purchase_date,
-      product_id: prismaBatch.product_id,
-    };
-  }
-
   async create(data: CreateBatchInput): Promise<Batch> {
     const { product_id, ...batchData } = data;
 
@@ -147,6 +134,9 @@ export class BatchRepository {
         product_id: productId,
         current_quantity: { gt: 0 },
         expiration_date: { gt: saleDate },
+        product: {
+          deleted_at: null,
+        },
       },
       orderBy: { expiration_date: 'asc' },
     });
@@ -154,8 +144,10 @@ export class BatchRepository {
     return batches.map((batch) => this.mapToBatch(batch));
   }
 
-  async delete(id: number): Promise<void> {
-    await this.prisma.batch.delete({ where: { id } });
+  async delete(id: number, tx?: Prisma.TransactionClient): Promise<void> {
+    const client = tx || this.prisma;
+
+    await client.batch.delete({ where: { id } });
   }
 
   async sumQuantityByProduct(productId: number): Promise<number> {
@@ -221,5 +213,18 @@ export class BatchRepository {
     }
 
     return whereCondition;
+  }
+
+  private mapToBatch(prismaBatch: any): Batch {
+    return {
+      id: prismaBatch.id,
+      tax_invoice_number: prismaBatch.tax_invoice_number,
+      unit_cost_price: Number(prismaBatch.unit_cost_price),
+      expiration_date: prismaBatch.expiration_date,
+      purchase_date: prismaBatch.purchase_date,
+      current_quantity: prismaBatch.current_quantity,
+      purchase_quantity: prismaBatch.purchase_quantity,
+      product_id: prismaBatch.product_id,
+    };
   }
 }

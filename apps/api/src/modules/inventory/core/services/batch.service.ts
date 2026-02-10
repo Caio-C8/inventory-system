@@ -13,12 +13,14 @@ import { Batch } from '../models/batch.model';
 import { ProductService } from 'src/modules/catalog/core/services/product.service';
 import { PaginatedResult } from '@repo/types';
 import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/common/persistence/prisma.service';
 
 @Injectable()
 export class BatchService {
   constructor(
     private readonly batchRepository: BatchRepository,
     private readonly productService: ProductService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async create(batchData: CreateBatchInput): Promise<Batch> {
@@ -41,6 +43,10 @@ export class BatchService {
   }
 
   async update(batchId: number, batchData: UpdateBatchInput): Promise<Batch> {
+    if (Object.keys(batchData).length === 0) {
+      throw new BadRequestException('Nenhum dado fornecido para atualização.');
+    }
+
     const oldBatch = await this.batchRepository.findOne(batchId);
 
     if (!oldBatch) {
@@ -77,7 +83,7 @@ export class BatchService {
 
     if (finalCurrentQty !== undefined && finalCurrentQty < 0) {
       throw new BadRequestException(
-        'A redução da compra tornaria o estoque atual negativo.',
+        'A redução da compra tornaria o estoque atual negativo. Considere alterar também a quantidade atual.',
       );
     }
 
@@ -152,20 +158,29 @@ export class BatchService {
     const batch = await this.batchRepository.findOne(batchId);
 
     if (!batch) {
-      throw new NotFoundException('Lote não existe.');
+      throw new NotFoundException('Lote não encontrado.');
     }
 
-    await this.batchRepository.delete(batchId);
+    return this.prisma.$transaction(async (tx) => {
+      await this.productService.decreaseStock(
+        batch.product_id,
+        batch.current_quantity,
+        tx,
+      );
 
-    await this.productService.decreaseStock(
-      batch.product_id,
-      batch.current_quantity,
-    );
+      await this.batchRepository.delete(batchId, tx);
+    });
   }
 
   async syncStockByProduct(
     productId: number,
   ): Promise<{ synced_stock: number }> {
+    const product = await this.productService.findOne(productId);
+
+    if (!product) {
+      throw new NotFoundException('Produto não encontrado.');
+    }
+
     const totalQuantity =
       await this.batchRepository.sumQuantityByProduct(productId);
 
@@ -192,6 +207,14 @@ export class BatchService {
       saleDate,
       tx,
     );
+
+    if (batches.length <= 0) {
+      const product = await this.productService.findOne(productId);
+
+      throw new BadRequestException(
+        `Não existem lotes do produto ${product.name}. Verifique se existem lotes desse produto ou se ele está excluído.`,
+      );
+    }
 
     let remainingQuantity = quantityNeeded;
     const allocations: Array<{
@@ -220,8 +243,10 @@ export class BatchService {
     }
 
     if (remainingQuantity > 0) {
+      const product = await this.productService.findOne(productId);
+
       throw new BadRequestException(
-        `Estoque insuficiente do produto ${productId} para completar a venda. Faltam ${remainingQuantity} unidades.`,
+        `Estoque insuficiente do produto ${product.name} para completar a venda. Faltam ${remainingQuantity} unidades.`,
       );
     }
 
