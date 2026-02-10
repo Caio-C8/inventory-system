@@ -28,6 +28,10 @@ export class CustomerService {
     customerId: number,
     customerData: UpdateCustomerInput,
   ): Promise<Customer> {
+    if (Object.keys(customerData).length === 0) {
+      throw new BadRequestException('Nenhum dado fornecido para atualização.');
+    }
+
     const customer = await this.customerRepository.findOne(customerId);
 
     if (!customer) {
@@ -43,7 +47,13 @@ export class CustomerService {
   }
 
   async findOne(customerId: number): Promise<Customer | null> {
-    return await this.customerRepository.findOne(customerId);
+    const customer = await this.customerRepository.findOne(customerId);
+
+    if (!customer) {
+      throw new NotFoundException('Cliente não encontrado.');
+    }
+
+    return customer;
   }
 
   async findAll(

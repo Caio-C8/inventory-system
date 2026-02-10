@@ -25,6 +25,10 @@ export class SaleItemService {
     saleItemId: number,
     updateData: UpdateSaleItemInput,
   ): Promise<SaleWithItems> {
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestException('Nenhum dado fornecido para atualização.');
+    }
+
     const currentItem = await this.saleItemRepository.findOne(saleItemId);
 
     if (!currentItem) {
@@ -46,7 +50,17 @@ export class SaleItemService {
       targetProductId !== currentItem.product_id ||
       targetQuantity !== currentItem.quantity;
 
-    return (await this.prisma.$transaction(async (tx) => {
+    const isDuplicate = currentItem.sale.saleItems.some(
+      (item) => item.product_id === targetProductId && item.id !== saleItemId,
+    );
+
+    if (isDuplicate) {
+      throw new BadRequestException(
+        'Este produto já existe nesta venda. Remova este item ou altere a quantidade do item já existente.',
+      );
+    }
+
+    return await this.prisma.$transaction(async (tx) => {
       let newUnitCostSnapshot = Number(currentItem.unit_cost_snapshot);
 
       if (hasInventoryChange) {
@@ -95,35 +109,81 @@ export class SaleItemService {
           targetQuantity,
           tx,
         );
+      }
 
-        await this.saleItemRepository.update(
-          currentItem.id,
-          {
-            product_id: targetProductId,
-            quantity: targetQuantity,
-            unit_sale_price: targetPrice,
-            unit_cost_snapshot: newUnitCostSnapshot,
-          },
-          tx,
-        );
+      await this.saleItemRepository.update(
+        currentItem.id,
+        {
+          product_id: targetProductId,
+          quantity: targetQuantity,
+          unit_sale_price: targetPrice,
+          unit_cost_snapshot: newUnitCostSnapshot,
+        },
+        tx,
+      );
 
-        const oldItemTotal =
-          currentItem.quantity * Number(currentItem.unit_sale_price);
-        const newItemTotal = targetQuantity * targetPrice;
+      const oldItemTotal =
+        currentItem.quantity * Number(currentItem.unit_sale_price);
+      const newItemTotal = targetQuantity * targetPrice;
 
-        const currentTotalValue = Number(currentItem.sale.total_value);
-        const newTotalValue = currentTotalValue - oldItemTotal + newItemTotal;
+      const currentTotalValue = Number(currentItem.sale.total_value);
+      const newTotalValue = currentTotalValue - oldItemTotal + newItemTotal;
 
-        return this.saleRepository.updateTotalValue(
-          currentItem.sale_id,
-          newTotalValue,
+      return this.saleRepository.updateTotalValue(
+        currentItem.sale_id,
+        newTotalValue,
+        tx,
+      );
+    });
+  }
+
+  async delete(saleItemId: number): Promise<SaleWithItems> {
+    const item = await this.saleItemRepository.findOne(saleItemId);
+
+    if (!item) {
+      throw new NotFoundException('Item não encontrado.');
+    }
+
+    if (item.sale.status === SaleStatus.CANCELED) {
+      throw new BadRequestException(
+        'Não é possível excluir um item de uma venda cancelada.',
+      );
+    }
+
+    if (item.sale.saleItems.length <= 1) {
+      throw new BadRequestException(
+        'Não é possível remover o último item da venda. Ao invés disso, altere o status para cancelada.',
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      for (const alloc of item.batchAllocations) {
+        await this.batchService.increaseQuantity(
+          alloc.batch_id,
+          alloc.quantity,
           tx,
         );
       }
-    })) as unknown as SaleWithItems;
-  }
 
-  async delete(saleItemId: number): Promise<void> {
-    await this.saleItemRepository.delete(saleItemId);
+      await this.productService.increaseStock(
+        item.product_id,
+        item.quantity,
+        tx,
+      );
+
+      await this.saleItemRepository.deleteAllocations(item.id, tx);
+      await this.saleItemRepository.delete(saleItemId, tx);
+
+      const itemTotal = item.quantity * Number(item.unit_sale_price);
+      const newTotalValue = item.sale.total_value - itemTotal;
+
+      const sale = await this.saleRepository.updateTotalValue(
+        item.sale_id,
+        newTotalValue,
+        tx,
+      );
+
+      return sale;
+    });
   }
 }

@@ -43,6 +43,10 @@ export class SaleService {
       throw new NotFoundException('Cliente não encontrado.');
     }
 
+    if (customer.deleted_at) {
+      throw new BadRequestException(`Cliente ${customer.name} está deletado.`);
+    }
+
     if (!saleData.saleItems || saleData.saleItems.length <= 0) {
       throw new BadRequestException('A venda deve ter pelo menos um item.');
     }
@@ -118,10 +122,34 @@ export class SaleService {
     saleId: number,
     saleData: UpdateSaleInput,
   ): Promise<CompleteSale | SaleWithItems> {
+    if (Object.keys(saleData).length === 0) {
+      throw new BadRequestException('Nenhum dado fornecido para atualização.');
+    }
+
     const sale = await this.saleRepository.findOne(saleId);
 
     if (!sale) {
-      throw new BadRequestException('Venda não encontrada.');
+      throw new NotFoundException('Venda não encontrada.');
+    }
+
+    if (sale.status === SaleStatus.CANCELED) {
+      throw new BadRequestException(
+        'Não é possível alterar uma venda cancelada.',
+      );
+    }
+
+    if (saleData.customer_id) {
+      const customer = await this.customerService.findOne(saleData.customer_id);
+
+      if (!customer) {
+        throw new NotFoundException('Cliente não encontrado.');
+      }
+
+      if (customer.deleted_at) {
+        throw new BadRequestException(
+          `Não é possível atribuir essa venda ao cliente ${customer.name}. Cliente está deletado.`,
+        );
+      }
     }
 
     return await this.saleRepository.update(saleId, saleData);
@@ -131,7 +159,7 @@ export class SaleService {
     const sale = await this.saleRepository.findOne(saleId);
 
     if (!sale) {
-      throw new BadRequestException('Venda não encontrada.');
+      throw new NotFoundException('Venda não encontrada.');
     }
 
     return sale;

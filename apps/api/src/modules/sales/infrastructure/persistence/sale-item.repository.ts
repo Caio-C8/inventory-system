@@ -28,7 +28,9 @@ export class SaleItemRepository {
       where: { id },
       include: {
         batchAllocations: true,
-        sale: true,
+        sale: {
+          include: { saleItems: true },
+        },
       },
     });
 
@@ -84,6 +86,10 @@ export class SaleItemRepository {
         ? {
             ...prismaSaleItem.sale,
             total_value: Number(prismaSaleItem.sale.total_value),
+            saleItems:
+              prismaSaleItem.sale.saleItems?.map((item: any) =>
+                this.mapToSaleItem(item),
+              ) || [],
           }
         : undefined,
     };
