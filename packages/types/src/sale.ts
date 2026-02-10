@@ -55,7 +55,7 @@ export type SaleWithAllocations = Sale & {
 
 export type SaleItemWithRelations = SaleItem & {
   batchAllocations: AllocationSaleItem[];
-  sale: Sale;
+  sale: SaleWithItems;
 };
 
 export interface StockAllocationResult {
@@ -115,7 +115,7 @@ export const CreateSaleSchema = z.object({
     .number({
       invalid_type_error: "Valor total inválido.",
     })
-    .gte(0.01, { message: "O valor total deve ser maior que 0." })
+    .min(0, { message: "O valor total deve ser maior que 0." })
     .optional()
     .default(0),
 

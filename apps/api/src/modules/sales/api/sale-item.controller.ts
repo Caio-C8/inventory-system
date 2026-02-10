@@ -23,7 +23,7 @@ export class SaleItemController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<SaleWithItems> {
     return await this.saleItemService.delete(id);
   }
 }
