@@ -9,7 +9,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = Cookies.get('inventory-token');
+  const token = Cookies.get('token');
 
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
