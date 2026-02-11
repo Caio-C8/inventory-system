@@ -1,8 +1,8 @@
-import { useLogout } from '@/features/auth/hooks/use-logout';
+import { useAuth } from '@/features/auth/hooks/use-auth';
 import { LogOut } from 'lucide-react';
 
 export function LogoutButton() {
-  const { logout } = useLogout();
+  const { logout } = useAuth();
 
   return (
     <div className="p-2">

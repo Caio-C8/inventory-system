@@ -1,15 +1,16 @@
 import { api } from '@/lib/api';
 import { LoginInput } from '@repo/types';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
 
-export const useLogin = () => {
+export const useAuth = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  return useMutation({
+  const login = useMutation({
     mutationFn: async (data: LoginInput) => {
       const response = await api.post('auth/login', data);
 
@@ -31,4 +32,18 @@ export const useLogin = () => {
       toast.error(error.response?.data.message || 'Erro inesperado.');
     },
   });
+
+  const logout = () => {
+    Cookies.remove('token');
+    queryClient.clear();
+    toast.success('Logout realizado com sucesso.');
+    router.push('/login');
+    router.refresh();
+  };
+
+  return {
+    login,
+    logout,
+    isLoading: login.isPending,
+  };
 };
