@@ -58,7 +58,7 @@ const GetProductsParams = z.object({
   status: z
     .nativeEnum(ProductStatusFilter)
     .optional()
-    .default(ProductStatusFilter.ACTIVE),
+    .default(ProductStatusFilter.ALL),
 
   min_price: z.coerce.number().gte(0.01).optional(),
   max_price: z.coerce.number().gte(0.01).optional(),
