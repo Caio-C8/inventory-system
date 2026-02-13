@@ -123,3 +123,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+.link {
+  color: #3580e9;
+  text-decoration: underline;
+}
+
+.link:hover {
+  color: #3580e9bf;
+}
