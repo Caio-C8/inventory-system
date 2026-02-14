@@ -8,7 +8,7 @@ export default function DashboardLayout({
   return (
     <>
       <NavBar />
-      {children}
+      <main className="py-[50px] px-[60px]">{children}</main>
     </>
   );
 }
