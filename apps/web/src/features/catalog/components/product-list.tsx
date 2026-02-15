@@ -17,9 +17,11 @@ export const ProductsList = () => {
 
   const { data, isLoading } = useGetProducts(validatedParams);
 
+  const showTable = isLoading || (data?.data && data.data.length > 0);
+
   return (
     <>
-      {data?.data && data.data.length > 0 ? (
+      {showTable ? (
         <DataTable
           columns={PRODUCT_COLUMNS}
           data={data?.data}
