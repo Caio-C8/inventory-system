@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { TablePagination } from '@/components/table-pagination';
 import { ReactNode } from 'react';
-import { Loading } from '@/components/loading';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 
 interface Column<T> {
   header: string;
@@ -40,13 +40,13 @@ export function DataTable<T>({
   onPageChange,
   getRowKey,
 }: DataTableProps<T>) {
-  if (isLoading) return <Loading />;
-
   return (
     <div className="w-full">
       <Table>
         <TableCaption className="text-right">
-          {meta && `${meta.total} encontrados`}
+          {isLoading
+            ? 'Buscando dados...'
+            : meta && `${meta.total} encontrados`}
         </TableCaption>
         <TableHeader>
           <TableRow className="bg-muted/50">
@@ -58,22 +58,29 @@ export function DataTable<T>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((item) => (
-            <TableRow
-              key={getRowKey(item)}
-              className="even:bg-muted/70 even:hover:bg-muted/90 h-[50px]"
-            >
-              {columns.map((column, colIndex) => (
-                <TableCell key={colIndex} className="text-center text-base">
-                  {column.cell(item)}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
+          {isLoading ? (
+            <TableSkeleton
+              columnsCount={columns.length}
+              rowsCount={meta?.limit}
+            />
+          ) : (
+            data.map((item) => (
+              <TableRow
+                key={getRowKey(item)}
+                className="even:bg-muted/70 even:hover:bg-muted/90 h-[50px]"
+              >
+                {columns.map((column, colIndex) => (
+                  <TableCell key={colIndex} className="text-center text-base">
+                    {column.cell(item)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
 
-      {meta && onPageChange && meta.lastPage > 1 && (
+      {!isLoading && meta && onPageChange && meta.lastPage > 1 && (
         <TablePagination
           page={meta.page}
           lastPage={meta.lastPage}
