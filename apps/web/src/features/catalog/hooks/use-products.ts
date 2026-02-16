@@ -32,7 +32,7 @@ export const useGetProduct = (id: number) => {
     queryKey: ['product', id],
     queryFn: async () => {
       const response = await api.get<PaginatedResult<Product>>(
-        `/products?${id}`,
+        `/products/${id}`,
       );
 
       return response.data;
