@@ -2,6 +2,11 @@ import { Filter } from '@/components/filter';
 import { Search } from '@/components/search';
 import { ProductsList } from '@/features/catalog/components/product-list';
 import { PRODUCT_FILTERS_CONFIG } from '@/features/catalog/constants/product-filters';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Catálogo',
+};
 
 export default function ProductsPage() {
   return (

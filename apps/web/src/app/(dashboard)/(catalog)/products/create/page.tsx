@@ -1,5 +1,10 @@
 import { Card } from '@/components/ui/card';
 import { CreateProductForm } from '@/features/catalog/components/create-product-form';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Cadastrar Produto',
+};
 
 export default function CreateProduct() {
   return (
