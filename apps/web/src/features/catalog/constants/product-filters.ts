@@ -1,5 +1,5 @@
 import { FilterFieldConfig } from '@/components/filter';
-import { ProductStatusFilter } from '@repo/types';
+import { GetProductsInput, ProductStatusFilter } from '@repo/types';
 
 export const PRODUCT_STATUS_OPTIONS = [
   { label: 'Ativos', value: ProductStatusFilter.ACTIVE },
@@ -7,7 +7,7 @@ export const PRODUCT_STATUS_OPTIONS = [
   { label: 'Todos', value: ProductStatusFilter.ALL },
 ];
 
-export const PRODUCT_FILTERS_CONFIG: FilterFieldConfig<any>[] = [
+export const PRODUCT_FILTERS_CONFIG: FilterFieldConfig<GetProductsInput>[] = [
   {
     name: 'status',
     label: 'Status',
