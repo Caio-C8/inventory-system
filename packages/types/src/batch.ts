@@ -75,6 +75,8 @@ export const UpdateBatchSchema = CreateBatchSchema.partial().extend({
 });
 
 const GetBatchesParams = z.object({
+  search: z.string().optional(),
+
   min_expiration_date: z.coerce
     .date()
     .min(new Date("1990-01-01"))
