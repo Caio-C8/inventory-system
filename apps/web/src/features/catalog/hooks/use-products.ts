@@ -31,9 +31,7 @@ export const useGetProduct = (id: number) => {
   return useQuery({
     queryKey: ['product', id],
     queryFn: async () => {
-      const response = await api.get<PaginatedResult<Product>>(
-        `/products/${id}`,
-      );
+      const response = await api.get<ApiResponse<Product>>(`/products/${id}`);
 
       return response.data;
     },
