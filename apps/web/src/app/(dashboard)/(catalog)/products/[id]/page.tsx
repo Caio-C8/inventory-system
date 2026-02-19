@@ -28,7 +28,7 @@ export default function ProductDetailsPage() {
       <h2 className="text-center text-3xl">Lotes do produto</h2>
 
       <div className="flex justify-center">
-        <Search />
+        <Search placeholder="Pesquise pelo nº da nota fiscal" />
       </div>
 
       <Filter fields={BATCH_FILTERS_CONFIG} />
