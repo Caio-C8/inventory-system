@@ -1,7 +1,7 @@
 'use client';
 
 import { DataTable } from '@/components/data-table';
-import { PRODUCT_DETAIL_COLUMN } from '../constants/product-columns';
+import { PRODUCT_DETAIL_COLUMN } from '@/features/catalog/constants/product-columns';
 import { Product } from '@repo/types';
 
 interface ProductDataProps {

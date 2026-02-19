@@ -6,8 +6,8 @@ import {
   useDeleteProduct,
   useRestoreProduct,
   useUpdateProduct,
-} from '../hooks/use-products';
-import { EDIT_PRODUCT_CONFIG } from './edit-product';
+} from '@/features/catalog/hooks/use-products';
+import { EDIT_PRODUCT_CONFIG } from '@/features/catalog/constants/edit-product';
 
 const EditProductActionCell = ({ product }: { product: Product }) => {
   const { mutate: updateFn, isPending: isPendingSave } = useUpdateProduct(

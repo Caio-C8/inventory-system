@@ -30,7 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from './ui/alert-dialog';
+} from '@/components/ui/alert-dialog';
 
 export type EditFieldType = 'text' | 'number' | 'date' | 'currency';
 
