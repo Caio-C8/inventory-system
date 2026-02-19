@@ -95,6 +95,7 @@ export const useDeleteProduct = (id: number) => {
     },
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', id] });
 
       toast.success(response.message || 'Produto removido com sucesso.');
     },
@@ -117,6 +118,7 @@ export const useRestoreProduct = (id: number) => {
     },
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', id] });
 
       toast.success(
         response.data?.message || 'Produto restaurado com sucesso.',
