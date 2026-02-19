@@ -9,6 +9,40 @@ import {
 } from '../hooks/use-products';
 import { EDIT_PRODUCT_CONFIG } from './edit-product';
 
+const EditProductActionCell = ({ product }: { product: Product }) => {
+  const { mutate: updateFn, isPending: isPendingSave } = useUpdateProduct(
+    product.id,
+  );
+
+  const { mutate: deleteFn, isPending: isPendingDelete } = useDeleteProduct(
+    product.id,
+  );
+
+  const { mutate: restoreFn, isPending: isPendingRestore } = useRestoreProduct(
+    product.id,
+  );
+
+  return (
+    <EditModal
+      title="Editar produto"
+      entity={product}
+      fields={EDIT_PRODUCT_CONFIG}
+      onSave={async (data) => {
+        await updateFn(data);
+      }}
+      isPendingSave={isPendingSave}
+      onDelete={async () => {
+        await deleteFn();
+      }}
+      isPendingDelete={isPendingDelete}
+      onRestore={async () => {
+        await restoreFn();
+      }}
+      isPendingRestore={isPendingRestore}
+    />
+  );
+};
+
 export const PRODUCT_COLUMNS = [
   {
     header: 'Código',
@@ -68,31 +102,6 @@ export const PRODUCT_DETAIL_COLUMN = [
   },
   {
     header: '',
-    cell: (product: Product) => {
-      const { mutate: updateFn, isPending: isPendingSave } = useUpdateProduct(
-        product.id,
-      );
-
-      const { mutate: deleteFn, isPending: isPendingDelete } = useDeleteProduct(
-        product.id,
-      );
-
-      const { mutate: restoreFn, isPending: isPendingRestore } =
-        useRestoreProduct(product.id);
-
-      return (
-        <EditModal
-          title="Editar produto"
-          entity={product}
-          fields={EDIT_PRODUCT_CONFIG}
-          onSave={updateFn}
-          isPendingSave={isPendingSave}
-          onDelete={deleteFn}
-          isPendingDelete={isPendingDelete}
-          onRestore={restoreFn}
-          isPendingRestore={isPendingRestore}
-        />
-      );
-    },
+    cell: (product: Product) => <EditProductActionCell product={product} />,
   },
 ];
