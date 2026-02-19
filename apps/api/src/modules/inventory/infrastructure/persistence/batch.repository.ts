@@ -163,6 +163,7 @@ export class BatchRepository {
 
   private getWhereCondition(params: GetBatchesInput) {
     const {
+      search,
       min_expiration_date,
       max_expiration_date,
       min_purchase_date,
@@ -176,6 +177,16 @@ export class BatchRepository {
     } = params;
 
     const whereCondition: Prisma.BatchWhereInput = {};
+
+    if (search) {
+      whereCondition.OR = [
+        {
+          tax_invoice_number: {
+            contains: search,
+          },
+        },
+      ];
+    }
 
     if (min_expiration_date || max_expiration_date) {
       whereCondition.expiration_date = {
