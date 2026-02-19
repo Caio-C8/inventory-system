@@ -178,14 +178,14 @@ export function EditModal<T extends Record<string, any>>({
                         variant="destructive"
                         disabled={isAnyActionPending}
                       >
-                        {isPendingDelete ? 'Excluindo...' : 'Excluir'}
+                        {isPendingDelete ? 'Removendo...' : 'Remover'}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Tem certeza que deseja excluir este registro?
+                          Tem certeza que deseja remover este registro?
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

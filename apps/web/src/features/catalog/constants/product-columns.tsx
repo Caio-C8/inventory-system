@@ -65,6 +65,10 @@ export const PRODUCT_COLUMNS = [
     cell: (product: Product) => product.current_stock,
   },
   {
+    header: 'Status',
+    cell: (product: Product) => (product.deleted_at ? 'Removido' : 'Ativo'),
+  },
+  {
     header: '',
     cell: (product: Product) => (
       <Link href={`/products/${product.id}`} className="link">
@@ -97,8 +101,7 @@ export const PRODUCT_DETAIL_COLUMN = [
   },
   {
     header: 'Status',
-    cell: (product: Product) =>
-      product.deleted_at ? 'Desabilitado' : 'Habilitado',
+    cell: (product: Product) => (product.deleted_at ? 'Removido' : 'Ativo'),
   },
   {
     header: '',

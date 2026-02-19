@@ -152,7 +152,7 @@ export class SaleItemService {
 
     if (item.sale.saleItems.length <= 1) {
       throw new BadRequestException(
-        'Não é possível remover o último item da venda. Ao invés disso, altere o status para cancelada.',
+        'Não é possível excluir o último item da venda. Ao invés disso, altere o status para cancelada.',
       );
     }
 
