@@ -144,6 +144,11 @@ export function Filter<T extends Record<string, any>>({
                         placeholder={field.placeholder}
                         {...formField}
                         value={formField.value ?? ''}
+                        onWheel={(e) => {
+                          if (field.type === 'number') {
+                            (e.target as HTMLInputElement).blur();
+                          }
+                        }}
                       />
                     )}
                   </FormControl>
