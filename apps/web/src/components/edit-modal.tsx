@@ -71,7 +71,39 @@ export function EditModal<T extends Record<string, any>>({
   });
 
   const handleSubmit = async (data: T) => {
-    await onSave(data);
+    const payload = { ...data } as Record<string, any>;
+    const originalEntity = entity as Record<string, any>;
+
+    fields.forEach((field) => {
+      const key = field.name as string;
+      const currentValue = payload[key];
+      const originalValue = originalEntity[key];
+
+      let isSame = false;
+
+      if (field.type === 'date') {
+        if (currentValue && originalValue) {
+          const currentObj = new Date(currentValue);
+          const originalObj = new Date(originalValue);
+
+          if (currentObj.getTime() === originalObj.getTime()) {
+            isSame = true;
+          }
+        } else if (!currentValue && !originalValue) {
+          isSame = true;
+        }
+      } else {
+        if (currentValue === originalValue) {
+          isSame = true;
+        }
+      }
+
+      if (isSame) {
+        payload[key] = undefined;
+      }
+    });
+
+    await onSave(payload as T);
     setIsOpen(false);
   };
 
@@ -149,14 +181,25 @@ export function EditModal<T extends Record<string, any>>({
                             type={field.type}
                             placeholder={field.placeholder}
                             {...formField}
-                            value={formField.value ?? ''}
+                            value={
+                              field.type === 'date' && formField.value
+                                ? new Date(formField.value)
+                                    .toISOString()
+                                    .split('T')[0]
+                                : (formField.value ?? '')
+                            }
                             onChange={(e) => {
                               const val = e.target.value;
-                              formField.onChange(
-                                field.type === 'number' && val !== ''
-                                  ? Number(val)
-                                  : val,
-                              );
+
+                              if (field.type === 'number' && val !== '') {
+                                formField.onChange(Number(val));
+                              } else if (field.type === 'date' && val !== '') {
+                                formField.onChange(
+                                  new Date(`${val}T00:00:00Z`),
+                                );
+                              } else {
+                                formField.onChange(val);
+                              }
                             }}
                           />
                         )}
