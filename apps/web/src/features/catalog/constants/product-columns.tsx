@@ -1,5 +1,5 @@
 import { EditModal } from '@/components/edit-modal';
-import { Product } from '@repo/types';
+import { Product, UpdateProductSchema } from '@repo/types';
 import { formatBrl } from '@repo/utils';
 import Link from 'next/link';
 import {
@@ -27,6 +27,7 @@ const EditProductActionCell = ({ product }: { product: Product }) => {
       title="Editar produto"
       entity={product}
       fields={EDIT_PRODUCT_CONFIG}
+      schema={UpdateProductSchema}
       onSave={async (data) => {
         await updateFn(data);
       }}

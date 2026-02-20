@@ -31,6 +31,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export type EditFieldType = 'text' | 'number' | 'date' | 'currency';
 
@@ -45,6 +47,7 @@ interface EditModalProps<T> {
   title?: string;
   entity: T;
   fields: EditFieldConfig<T>[];
+  schema: z.ZodType<any, any>;
   onSave: (data: T) => void | Promise<void>;
   isPendingSave?: boolean;
   onDelete?: () => void | Promise<void>;
@@ -57,6 +60,7 @@ export function EditModal<T extends Record<string, any>>({
   title = 'Editar',
   entity,
   fields,
+  schema,
   onSave,
   isPendingSave,
   onDelete,
@@ -67,6 +71,7 @@ export function EditModal<T extends Record<string, any>>({
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<T>({
+    resolver: zodResolver(schema),
     defaultValues: entity as DefaultValues<T>,
   });
 

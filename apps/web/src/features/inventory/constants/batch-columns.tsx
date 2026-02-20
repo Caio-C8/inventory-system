@@ -1,4 +1,4 @@
-import { Batch } from '@repo/types';
+import { Batch, UpdateBatchSchema } from '@repo/types';
 import { formatBrl, formatDate } from '@repo/utils';
 import {
   useDeleteBatch,
@@ -23,6 +23,7 @@ const EditBatchActionCell = ({ batch }: { batch: Batch }) => {
       title="Editar produto"
       entity={batch}
       fields={EDIT_BATCH_CONFIG}
+      schema={UpdateBatchSchema}
       onSave={async (data) => {
         await updateFn(data);
       }}
