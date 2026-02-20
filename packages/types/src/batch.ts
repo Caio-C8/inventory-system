@@ -34,9 +34,6 @@ export const CreateBatchSchema = z.object({
     })
     .min(new Date("1990-01-01"), {
       message: "A data de validade não pode ser muito antiga.",
-    })
-    .max(new Date(), {
-      message: "A data de compra não pode ultrapassar a data atual.",
     }),
 
   purchase_date: z.coerce
