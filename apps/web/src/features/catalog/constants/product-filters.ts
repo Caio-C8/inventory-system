@@ -18,13 +18,13 @@ export const PRODUCT_FILTERS_CONFIG: FilterFieldConfig<GetProductsInput>[] = [
   {
     name: 'min_price',
     label: 'Preço Mín.',
-    type: 'number',
+    type: 'currency',
     placeholder: 'Preço mínimo',
   },
   {
     name: 'max_price',
     label: 'Preço Máx.',
-    type: 'number',
+    type: 'currency',
     placeholder: 'Preço máximo',
   },
   {

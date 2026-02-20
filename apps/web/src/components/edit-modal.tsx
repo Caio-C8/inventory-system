@@ -19,7 +19,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { NumericFormat } from 'react-number-format';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +32,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CurrencyInput } from '@/components/ui/currency-input';
 
 export type EditFieldType = 'text' | 'number' | 'date' | 'currency';
 
@@ -167,19 +167,11 @@ export function EditModal<T extends Record<string, any>>({
                       <FormLabel>{field.label}</FormLabel>
                       <FormControl>
                         {field.type === 'currency' ? (
-                          <NumericFormat
-                            thousandSeparator="."
-                            decimalSeparator=","
-                            prefix="R$ "
-                            decimalScale={2}
-                            fixedDecimalScale
-                            allowNegative={false}
-                            customInput={Input}
-                            placeholder={field.placeholder || 'R$ 0,00'}
-                            value={formField.value ?? ''}
-                            onValueChange={(values) => {
-                              formField.onChange(values.floatValue);
-                            }}
+                          <CurrencyInput
+                            placeholder={field.placeholder ?? 'R$ 0,00'}
+                            value={formField.value}
+                            onChange={formField.onChange}
+                            disabled={isAnyActionPending}
                           />
                         ) : (
                           <Input

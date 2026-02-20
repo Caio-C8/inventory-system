@@ -21,8 +21,14 @@ import { X } from 'lucide-react';
 import { useFilterUrl } from '@/hooks/use-filter-url';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useEffect, useMemo, useRef } from 'react';
+import { CurrencyInput } from './ui/currency-input';
 
-export type FilterFieldType = 'text' | 'number' | 'date' | 'select';
+export type FilterFieldType =
+  | 'text'
+  | 'number'
+  | 'date'
+  | 'select'
+  | 'currency';
 
 export interface FilterFieldConfig<T> {
   name: keyof T;
@@ -63,10 +69,17 @@ export function Filter<T extends Record<string, any>>({
 
     managedKeys.forEach((key) => {
       const value = obj?.[key];
-      result[key] =
-        value === null || value === undefined || value === ''
-          ? ''
-          : String(value);
+
+      const fieldConfig = fields.find((f) => f.name === key);
+
+      if (fieldConfig?.type === 'currency' && value === 0) {
+        result[key] = '';
+      } else {
+        result[key] =
+          value === null || value === undefined || value === ''
+            ? ''
+            : String(value);
+      }
     });
 
     return result;
@@ -141,6 +154,12 @@ export function Filter<T extends Record<string, any>>({
                           ))}
                         </SelectContent>
                       </Select>
+                    ) : field.type === 'currency' ? (
+                      <CurrencyInput
+                        placeholder="R$ 0,00"
+                        value={formField.value}
+                        onChange={formField.onChange}
+                      />
                     ) : (
                       <Input
                         type={field.type === 'date' ? 'date' : field.type}

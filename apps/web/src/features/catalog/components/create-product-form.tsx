@@ -14,7 +14,7 @@ import { useForm } from 'react-hook-form';
 import { useCreateProduct } from '@/features/catalog/hooks/use-products';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { NumericFormat } from 'react-number-format';
+import { CurrencyInput } from '@/components/ui/currency-input';
 
 export const CreateProductForm = () => {
   const { mutate, isPending } = useCreateProduct();
@@ -109,20 +109,11 @@ export const CreateProductForm = () => {
                 <FormLabel className="text-base">Preço de venda:</FormLabel>
 
                 <FormControl>
-                  <NumericFormat
-                    thousandSeparator="."
-                    decimalSeparator=","
-                    prefix="R$ "
-                    decimalScale={2}
-                    fixedDecimalScale
-                    allowNegative={false}
-                    customInput={Input}
+                  <CurrencyInput
                     placeholder="R$ 0,00"
                     className="w-[300px]"
-                    value={field.value ?? ''}
-                    onValueChange={(values) => {
-                      field.onChange(values.floatValue);
-                    }}
+                    value={field.value}
+                    onChange={field.onChange}
                   />
                 </FormControl>
 
