@@ -96,7 +96,7 @@ export const PRODUCT_DETAIL_COLUMN = [
     cell: (product: Product) => product.barcode,
   },
   {
-    header: 'Quantidade em estoque',
+    header: 'Estoque atual',
     cell: (product: Product) => product.current_stock,
   },
   {

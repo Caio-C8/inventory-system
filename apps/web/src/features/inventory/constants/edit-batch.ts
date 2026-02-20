@@ -28,7 +28,7 @@ export const EDIT_BATCH_CONFIG: EditFieldConfig<UpdateBatchInput>[] = [
   },
   {
     name: 'current_quantity',
-    label: 'Estoque atual',
+    label: 'Quantidade em estoque',
     type: 'number',
     placeholder: '0',
   },
