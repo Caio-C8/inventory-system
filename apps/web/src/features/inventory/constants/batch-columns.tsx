@@ -1,5 +1,39 @@
 import { Batch } from '@repo/types';
 import { formatBrl, formatDate } from '@repo/utils';
+import {
+  useDeleteBatch,
+  useUpdateBatch,
+} from '@/features/inventory/hooks/use-batches';
+import { EditModal } from '@/components/edit-modal';
+import { EDIT_BATCH_CONFIG } from '@/features/inventory/constants/edit-batch';
+
+const EditBatchActionCell = ({ batch }: { batch: Batch }) => {
+  const { mutate: updateFn, isPending: isPendingSave } = useUpdateBatch(
+    batch.id,
+    batch.product_id,
+  );
+
+  const { mutate: deleteFn, isPending: isPendingDelete } = useDeleteBatch(
+    batch.id,
+    batch.product_id,
+  );
+
+  return (
+    <EditModal
+      title="Editar produto"
+      entity={batch}
+      fields={EDIT_BATCH_CONFIG}
+      onSave={async (data) => {
+        await updateFn(data);
+      }}
+      isPendingSave={isPendingSave}
+      onDelete={async () => {
+        await deleteFn();
+      }}
+      isPendingDelete={isPendingDelete}
+    />
+  );
+};
 
 export const BATCH_COLUMNS = [
   {
@@ -28,6 +62,6 @@ export const BATCH_COLUMNS = [
   },
   {
     header: '',
-    cell: (batch: Batch) => <div className="link">Editar</div>,
+    cell: (batch: Batch) => <EditBatchActionCell batch={batch} />,
   },
 ];
