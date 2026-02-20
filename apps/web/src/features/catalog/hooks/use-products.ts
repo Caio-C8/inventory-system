@@ -31,9 +31,7 @@ export const useGetProduct = (id: number) => {
   return useQuery({
     queryKey: ['product', id],
     queryFn: async () => {
-      const response = await api.get<PaginatedResult<Product>>(
-        `/products/${id}`,
-      );
+      const response = await api.get<ApiResponse<Product>>(`/products/${id}`);
 
       return response.data;
     },
@@ -86,17 +84,18 @@ export const useUpdateProduct = (id: number) => {
   });
 };
 
-export const useDeleteProduct = () => {
+export const useDeleteProduct = (id: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async () => {
       const response = await api.delete(`products/${id}`);
 
       return response.data;
     },
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', id] });
 
       toast.success(response.message || 'Produto removido com sucesso.');
     },
@@ -108,17 +107,18 @@ export const useDeleteProduct = () => {
   });
 };
 
-export const useRestoreProduct = () => {
+export const useRestoreProduct = (id: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async () => {
       const response = await api.patch(`products/${id}/restore`);
 
       return response.data;
     },
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', id] });
 
       toast.success(
         response.data?.message || 'Produto restaurado com sucesso.',

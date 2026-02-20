@@ -277,7 +277,7 @@ export class SaleService {
     }
 
     if (sale.status !== SaleStatus.CANCELED) {
-      throw new BadRequestException('Venda já está habilitada.');
+      throw new BadRequestException('Venda já está ativa.');
     }
 
     return await this.prisma.$transaction(async (tx) => {

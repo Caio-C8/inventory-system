@@ -89,7 +89,7 @@ export class CustomerService {
     }
 
     if (!customer.deleted_at) {
-      throw new BadRequestException('Cliente já está habilitado');
+      throw new BadRequestException('Cliente já está ativo');
     }
 
     return this.customerRepository.restore(customerId);

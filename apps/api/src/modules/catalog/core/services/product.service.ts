@@ -108,7 +108,7 @@ export class ProductService {
     }
 
     if (!productToRestore.deleted_at) {
-      throw new BadRequestException('Produto já está habilitado.');
+      throw new BadRequestException('Produto já está ativo.');
     }
 
     return await this.productRepository.restore(productId);

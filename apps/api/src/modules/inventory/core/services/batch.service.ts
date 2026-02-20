@@ -59,7 +59,7 @@ export class BatchService {
       batchData.current_quantity > batchData.purchase_quantity
     ) {
       throw new BadRequestException(
-        'A quantidade atual não pode ser maior do que a quantidade comprada.',
+        'A quantidade em estoque não pode ser maior do que a quantidade comprada.',
       );
     }
 
@@ -69,7 +69,7 @@ export class BatchService {
       batchData.current_quantity > oldBatch.purchase_quantity
     ) {
       throw new BadRequestException(
-        'A quantidade atual não pode ser maior do que a quantidade comprada.',
+        'A quantidade em estoque não pode ser maior do que a quantidade comprada.',
       );
     }
 
@@ -83,7 +83,7 @@ export class BatchService {
 
     if (finalCurrentQty !== undefined && finalCurrentQty < 0) {
       throw new BadRequestException(
-        'A redução da compra tornaria o estoque atual negativo. Considere alterar também a quantidade atual.',
+        'A redução da compra tornaria a quantidade em estoque negativa. Considere alterar também a quantidade em estoque.',
       );
     }
 

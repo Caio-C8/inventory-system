@@ -8,8 +8,8 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
 import { cn } from '@/lib/utils';
-import { ThemeButton } from './theme-button';
-import { LogoutButton } from './logout-button';
+import { ThemeButton } from '@/components/layout/theme-button';
+import { LogoutButton } from '@/components/layout/logout-button';
 
 export default function NavBar() {
   const pathname = usePathname();
