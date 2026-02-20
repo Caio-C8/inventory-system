@@ -60,14 +60,11 @@ export function Filter<T extends Record<string, any>>({
 
   const getOnlyActiveFilters = (obj: Record<string, any>) => {
     const entries = Object.entries(obj || {})
-      .filter(
-        ([key, value]) =>
-          managedKeys.includes(key) &&
-          value !== '' &&
-          value !== null &&
-          value !== undefined,
-      )
-      .map(([key, value]) => [key, String(value)]);
+      .filter(([key]) => managedKeys.includes(key))
+      .map(([key, value]) => [
+        key,
+        value === null || value === undefined ? '' : String(value),
+      ]);
 
     return Object.fromEntries(entries.sort());
   };
