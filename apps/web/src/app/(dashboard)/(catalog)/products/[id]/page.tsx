@@ -3,15 +3,19 @@
 import NotFound from '@/app/not-found';
 import { Filter } from '@/components/filter';
 import { Search } from '@/components/search';
+import { SearchAndFilter } from '@/components/search-and-filter';
+import { SearchWithFilter } from '@/components/search-with-filter';
 import { ProductDataTable } from '@/features/catalog/components/product-data-table';
 import { useGetProduct } from '@/features/catalog/hooks/use-products';
 import { BatchesByProductList } from '@/features/inventory/components/batches-by-product-list';
 import { BATCH_FILTERS_CONFIG } from '@/features/inventory/constants/batch-filters';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 
 export default function ProductDetailsPage() {
   const params = useParams();
   const productId = Number(params.id);
+  const [showFilters, setShowFilters] = useState(false);
 
   const { data: productData, isLoading: isLoadingProduct } =
     useGetProduct(productId);
@@ -27,11 +31,11 @@ export default function ProductDetailsPage() {
 
       <h2 className="text-center text-3xl">Lotes do produto</h2>
 
-      <div className="flex justify-center">
-        <Search placeholder="Pesquise pelo nº da nota fiscal" />
-      </div>
-
-      <Filter fields={BATCH_FILTERS_CONFIG} />
+      <SearchAndFilter
+        searchPlaceholder="Pesquise pelo nº da nota fiscal"
+        filterFields={BATCH_FILTERS_CONFIG}
+        className="mx-auto max-w-lg"
+      />
 
       <BatchesByProductList />
     </div>

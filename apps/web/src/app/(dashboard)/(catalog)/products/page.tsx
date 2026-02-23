@@ -1,5 +1,6 @@
 import { Filter } from '@/components/filter';
 import { Search } from '@/components/search';
+import { SearchAndFilter } from '@/components/search-and-filter';
 import { ProductsList } from '@/features/catalog/components/product-list';
 import { PRODUCT_FILTERS_CONFIG } from '@/features/catalog/constants/product-filters';
 import { Metadata } from 'next';
@@ -13,11 +14,10 @@ export default function ProductsPage() {
     <div className="flex flex-col gap-10">
       <h1 className="text-center text-4xl">Produtos no catálogo</h1>
 
-      <div className="flex justify-center">
-        <Search />
-      </div>
-
-      <Filter fields={PRODUCT_FILTERS_CONFIG} />
+      <SearchAndFilter
+        filterFields={PRODUCT_FILTERS_CONFIG}
+        className="mx-auto max-w-lg"
+      />
 
       <ProductsList />
     </div>
