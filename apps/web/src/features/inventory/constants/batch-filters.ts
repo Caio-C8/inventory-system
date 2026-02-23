@@ -29,13 +29,13 @@ export const BATCH_FILTERS_CONFIG: FilterFieldConfig<GetBatchesInput>[] = [
   {
     name: 'min_unit_cost_price',
     label: 'Preço de Custo Mín.',
-    type: 'number',
+    type: 'currency',
     placeholder: 'Preço de custo mínimo',
   },
   {
     name: 'max_unit_cost_price',
     label: 'Preço de Custo Máx.',
-    type: 'number',
+    type: 'currency',
     placeholder: 'Preço de custo máximo',
   },
   {
