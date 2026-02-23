@@ -5,12 +5,17 @@ import { Search as SearchIcon } from 'lucide-react';
 import { useFilterUrl } from '@/hooks/use-filter-url';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface SearchProps {
   placeholder?: string;
+  className?: string;
 }
 
-export function Search({ placeholder = 'Pesquisar...' }: SearchProps) {
+export function Search({
+  placeholder = 'Pesquisar...',
+  className,
+}: SearchProps) {
   const { updateParams, params } = useFilterUrl();
 
   const [value, setValue] = useState(params.search || '');
@@ -30,7 +35,7 @@ export function Search({ placeholder = 'Pesquisar...' }: SearchProps) {
   }, [debouncedValue, updateParams, params.search]);
 
   return (
-    <div className="relative w-full max-w-lg">
+    <div className={cn('relative w-full', className)}>
       <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         className="pl-9"
