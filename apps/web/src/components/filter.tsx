@@ -21,7 +21,7 @@ import { X } from 'lucide-react';
 import { useFilterUrl } from '@/hooks/use-filter-url';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useEffect, useMemo, useRef } from 'react';
-import { CurrencyInput } from './ui/currency-input';
+import { CurrencyInput } from '@/components/ui/currency-input';
 
 export type FilterFieldType =
   | 'text'

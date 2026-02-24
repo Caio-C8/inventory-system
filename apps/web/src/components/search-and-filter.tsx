@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { SearchWithFilter } from './search-with-filter';
-import { Filter, FilterFieldConfig } from './filter'; // Ajuste o caminho conforme o seu projeto
+import { Filter, FilterFieldConfig } from './filter';
 
 interface SearchAndFilterProps<T> {
   searchPlaceholder?: string;

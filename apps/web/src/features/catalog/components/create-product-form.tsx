@@ -11,7 +11,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreateProductInput, CreateProductSchema } from '@repo/types';
 import { useForm } from 'react-hook-form';
-import { useCreateProduct } from '@/features/catalog/hooks/use-products';
+import { useCreateProduct } from '../hooks/use-products';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { CurrencyInput } from '@/components/ui/currency-input';

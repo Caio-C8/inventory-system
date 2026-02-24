@@ -1,10 +1,10 @@
 'use client';
 
 import { DataTable } from '@/components/data-table';
-import { useGetProducts } from '@/features/catalog/hooks/use-products';
+import { useGetProducts } from '../hooks/use-products';
 import { useFilterUrl } from '@/hooks/use-filter-url';
 import { GetProductsSchema } from '@repo/types';
-import { PRODUCT_COLUMNS } from '@/features/catalog/constants/product-columns';
+import { PRODUCT_COLUMNS } from '../constants/product-columns';
 
 export const ProductsList = () => {
   const { params, updateParams } = useFilterUrl();

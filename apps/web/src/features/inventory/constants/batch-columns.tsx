@@ -1,11 +1,8 @@
 import { Batch, UpdateBatchSchema } from '@repo/types';
 import { formatBrl, formatDate } from '@repo/utils';
-import {
-  useDeleteBatch,
-  useUpdateBatch,
-} from '@/features/inventory/hooks/use-batches';
+import { useDeleteBatch, useUpdateBatch } from '../hooks/use-batches';
 import { EditModal } from '@/components/edit-modal';
-import { EDIT_BATCH_CONFIG } from '@/features/inventory/constants/edit-batch';
+import { EDIT_BATCH_CONFIG } from '../constants/edit-batch';
 
 const EditBatchActionCell = ({ batch }: { batch: Batch }) => {
   const { mutate: updateFn, isPending: isPendingSave } = useUpdateBatch(

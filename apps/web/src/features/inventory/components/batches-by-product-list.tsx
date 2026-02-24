@@ -3,8 +3,8 @@
 import { DataTable } from '@/components/data-table';
 import { useFilterUrl } from '@/hooks/use-filter-url';
 import { GetBatchesSchema } from '@repo/types';
-import { useGetBatchesByProduct } from '@/features/inventory/hooks/use-batches';
-import { BATCH_COLUMNS } from '@/features/inventory/constants/batch-columns';
+import { useGetBatchesByProduct } from '../hooks/use-batches';
+import { BATCH_COLUMNS } from '../constants/batch-columns';
 import { useParams } from 'next/navigation';
 
 export const BatchesByProductList = () => {

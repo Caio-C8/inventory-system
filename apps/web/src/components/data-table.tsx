@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { TablePagination } from '@/components/table-pagination';
+import { TablePagination } from './table-pagination';
 import { ReactNode } from 'react';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 
