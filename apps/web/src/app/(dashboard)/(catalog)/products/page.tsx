@@ -1,5 +1,3 @@
-import { Filter } from '@/components/filter';
-import { Search } from '@/components/search';
 import { SearchAndFilter } from '@/components/search-and-filter';
 import { ProductsList } from '@/features/catalog/components/product-list';
 import { PRODUCT_FILTERS_CONFIG } from '@/features/catalog/constants/product-filters';
