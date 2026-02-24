@@ -1,11 +1,11 @@
-'use client';
+import { NotFoundButtons } from '@/components/not-found-buttons';
+import { Metadata } from 'next';
 
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+export const metadata: Metadata = {
+  title: 'Página não encontrada',
+};
 
 export default function NotFound() {
-  const router = useRouter();
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-5 p-4">
       <div className="space-y-2 text-center">
@@ -19,22 +19,7 @@ export default function NotFound() {
         </p>
       </div>
 
-      <div className="flex gap-2">
-        <Button
-          className="cursor-pointer"
-          variant="outline"
-          onClick={() => router.back()}
-        >
-          Voltar para a página anterior
-        </Button>
-
-        <Button
-          className="cursor-pointer"
-          onClick={() => router.push('/products')}
-        >
-          Ir para o Dashboard
-        </Button>
-      </div>
+      <NotFoundButtons />
     </div>
   );
 }
