@@ -1,26 +1,30 @@
 'use client';
 
 import NotFound from '@/app/not-found';
-import { Filter } from '@/components/filter';
-import { Search } from '@/components/search';
 import { SearchAndFilter } from '@/components/search-and-filter';
-import { SearchWithFilter } from '@/components/search-with-filter';
 import { ProductDataTable } from '@/features/catalog/components/product-data-table';
 import { useGetProduct } from '@/features/catalog/hooks/use-products';
 import { BatchesByProductList } from '@/features/inventory/components/batches-by-product-list';
 import { BATCH_FILTERS_CONFIG } from '@/features/inventory/constants/batch-filters';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect } from 'react';
 
 export default function ProductDetailsPage() {
   const params = useParams();
   const productId = Number(params.id);
-  const [showFilters, setShowFilters] = useState(false);
 
   const { data: productData, isLoading: isLoadingProduct } =
     useGetProduct(productId);
 
   const product = productData?.data;
+
+  useEffect(() => {
+    if (product?.name) {
+      document.title = `${product.name} | Inventory System`;
+    } else {
+      document.title = 'Carregando Produto... | Inventory System';
+    }
+  }, [product?.name]);
 
   if (!product) return <NotFound />;
 
