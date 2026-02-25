@@ -29,7 +29,9 @@ export default function ProductDetailsPage() {
 
   return (
     <div className="flex flex-col gap-[65px]">
-      <h1 className="text-center text-4xl">{product?.name}</h1>
+      <h1 className="text-center text-4xl">
+        {isLoading ? 'Carregando...' : product?.name}
+      </h1>
       <ProductDataTable product={product} isLoading={isLoading} />
 
       <h2 className="text-center text-3xl">Lotes do produto</h2>
