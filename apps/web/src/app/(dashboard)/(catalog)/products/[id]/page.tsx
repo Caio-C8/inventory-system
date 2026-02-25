@@ -13,8 +13,7 @@ export default function ProductDetailsPage() {
   const params = useParams();
   const productId = Number(params.id);
 
-  const { data: productData, isLoading: isLoadingProduct } =
-    useGetProduct(productId);
+  const { data: productData, isLoading } = useGetProduct(productId);
 
   const product = productData?.data;
 
@@ -26,12 +25,12 @@ export default function ProductDetailsPage() {
     }
   }, [product?.name]);
 
-  if (!product) return <NotFound />;
+  if (!isLoading && !product) return <NotFound />;
 
   return (
     <div className="flex flex-col gap-[65px]">
-      <h1 className="text-center text-4xl">{product.name}</h1>
-      <ProductDataTable product={product} />
+      <h1 className="text-center text-4xl">{product?.name}</h1>
+      <ProductDataTable product={product} isLoading={isLoading} />
 
       <h2 className="text-center text-3xl">Lotes do produto</h2>
 

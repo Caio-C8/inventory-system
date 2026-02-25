@@ -35,7 +35,7 @@ export const BatchesByProductList = () => {
             page: data?.meta.page || 1,
             lastPage: data?.meta.last_page || 1,
             total: data?.meta.total || 1,
-            limit: data?.meta.limit || 1,
+            limit: data?.meta.limit || validatedParams.limit,
           }}
           onPageChange={(page) => updateParams({ page })}
           getRowKey={(batch) => batch.id}

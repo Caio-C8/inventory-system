@@ -43,11 +43,13 @@ export function DataTable<T>({
   return (
     <div className="w-full">
       <Table>
-        <TableCaption className="text-right">
-          {isLoading
-            ? 'Buscando dados...'
-            : meta && `${meta.total} encontrados`}
-        </TableCaption>
+        {meta && meta.total > 0 ? (
+          <TableCaption className="text-right">
+            {isLoading ? 'Buscando dados...' : `${meta.total} encontrados`}
+          </TableCaption>
+        ) : (
+          <></>
+        )}
         <TableHeader>
           <TableRow className="bg-muted/50">
             {columns.map((column, index) => (
