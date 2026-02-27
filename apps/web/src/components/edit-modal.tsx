@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm, DefaultValues } from 'react-hook-form';
+import { useForm, DefaultValues, Path } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -37,10 +37,11 @@ import { CurrencyInput } from '@/components/ui/currency-input';
 export type EditFieldType = 'text' | 'number' | 'date' | 'currency';
 
 export interface EditFieldConfig<T> {
-  name: keyof T;
+  name: Path<T>;
   label: string;
   type: EditFieldType;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 interface EditModalProps<T> {
@@ -171,7 +172,11 @@ export function EditModal<T extends Record<string, any>>({
                             placeholder={field.placeholder ?? 'R$ 0,00'}
                             value={formField.value}
                             onChange={formField.onChange}
-                            disabled={isAnyActionPending}
+                            disabled={
+                              field.disabled
+                                ? field.disabled
+                                : isAnyActionPending
+                            }
                           />
                         ) : (
                           <Input
@@ -185,6 +190,7 @@ export function EditModal<T extends Record<string, any>>({
                                     .split('T')[0]
                                 : (formField.value ?? '')
                             }
+                            disabled={field.disabled ? field.disabled : false}
                             onChange={(e) => {
                               const val = e.target.value;
 

@@ -49,6 +49,29 @@ export default function NavBar() {
         </HoverCard>
 
         <HoverCard openDelay={100} closeDelay={100}>
+          <HoverCardTrigger className={navItemStyles('/batches')}>
+            <div>Lotes</div>
+          </HoverCardTrigger>
+
+          <HoverCardContent align="start" className="w-56 p-2">
+            <div className="flex flex-col gap-1">
+              <Link
+                href="/batches"
+                className="block px-2 py-1.5 text-sm hover:bg-accent rounded-md"
+              >
+                Ver Lotes
+              </Link>
+              <Link
+                href="/batches/create"
+                className="block px-2 py-1.5 text-sm hover:bg-accent rounded-md"
+              >
+                Cadastrar lotes
+              </Link>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
+
+        <HoverCard openDelay={100} closeDelay={100}>
           <HoverCardTrigger className={navItemStyles('/sales')}>
             <div>Vendas</div>
           </HoverCardTrigger>
