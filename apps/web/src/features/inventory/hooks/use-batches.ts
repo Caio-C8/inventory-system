@@ -2,6 +2,7 @@ import { api } from '@/lib/api';
 import {
   ApiResponse,
   Batch,
+  BatchWithProduct,
   GetBatchesInput,
   PaginatedResult,
   UpdateBatchInput,
@@ -9,6 +10,21 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
+
+export const useGetBatches = (params: GetBatchesInput) => {
+  return useQuery({
+    queryKey: ['batches', params],
+    queryFn: async () => {
+      const response = await api.get<
+        ApiResponse<PaginatedResult<BatchWithProduct>>
+      >('/batches', {
+        params,
+      });
+
+      return response.data.data;
+    },
+  });
+};
 
 export const useGetBatchesByProduct = (
   productId: number,
