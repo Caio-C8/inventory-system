@@ -188,6 +188,20 @@ export class BatchRepository {
             contains: search,
           },
         },
+        {
+          product: {
+            name_search: {
+              contains: search,
+            },
+          },
+        },
+        {
+          product: {
+            code: {
+              contains: search,
+            },
+          },
+        },
       ];
     }
 
