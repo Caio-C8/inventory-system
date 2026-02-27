@@ -1,39 +1,12 @@
-import { Batch, UpdateBatchSchema } from '@repo/types';
+import { Batch, BatchWithProduct, UpdateBatchSchema } from '@repo/types';
 import { formatBrl, formatDate } from '@repo/utils';
-import { useDeleteBatch, useUpdateBatch } from '../hooks/use-batches';
-import { EditModal } from '@/components/edit-modal';
-import { EDIT_BATCH_CONFIG } from '../constants/edit-batch';
+import {
+  EDIT_ALL_BATCHES_CONFIG,
+  EDIT_BATCH_BY_PRODUCT_CONFIG,
+  EditBatchActionCell,
+} from './edit-batch';
 
-const EditBatchActionCell = ({ batch }: { batch: Batch }) => {
-  const { mutate: updateFn, isPending: isPendingSave } = useUpdateBatch(
-    batch.id,
-    batch.product_id,
-  );
-
-  const { mutate: deleteFn, isPending: isPendingDelete } = useDeleteBatch(
-    batch.id,
-    batch.product_id,
-  );
-
-  return (
-    <EditModal
-      title="Editar produto"
-      entity={batch}
-      fields={EDIT_BATCH_CONFIG}
-      schema={UpdateBatchSchema}
-      onSave={async (data) => {
-        await updateFn(data);
-      }}
-      isPendingSave={isPendingSave}
-      onDelete={async () => {
-        await deleteFn();
-      }}
-      isPendingDelete={isPendingDelete}
-    />
-  );
-};
-
-export const BATCH_COLUMNS = [
+export const BATCHES_BY_PRODUCT_COLUMNS = [
   {
     header: 'Nº nota fiscal',
     cell: (batch: Batch) => batch.tax_invoice_number,
@@ -60,6 +33,52 @@ export const BATCH_COLUMNS = [
   },
   {
     header: '',
-    cell: (batch: Batch) => <EditBatchActionCell batch={batch} />,
+    cell: (batch: Batch) => (
+      <EditBatchActionCell
+        batch={batch}
+        editConfig={EDIT_BATCH_BY_PRODUCT_CONFIG}
+      />
+    ),
+  },
+];
+
+export const ALL_BATCHES_COLUMNS = [
+  {
+    header: 'Código',
+    cell: (batch: BatchWithProduct) => batch.product.code,
+  },
+  {
+    header: 'Produto',
+    cell: (batch: BatchWithProduct) => batch.product.name,
+  },
+  {
+    header: 'Nº nota fiscal',
+    cell: (batch: BatchWithProduct) => batch.tax_invoice_number,
+  },
+  {
+    header: 'Preço de custo unitário',
+    cell: (batch: BatchWithProduct) => formatBrl(batch.unit_cost_price),
+  },
+  {
+    header: 'Data de validade',
+    cell: (batch: BatchWithProduct) => formatDate(batch.expiration_date),
+  },
+  {
+    header: 'Data de compra',
+    cell: (batch: BatchWithProduct) => formatDate(batch.purchase_date),
+  },
+  {
+    header: 'Quantidade em estoque',
+    cell: (batch: BatchWithProduct) => batch.current_quantity,
+  },
+  {
+    header: 'Quantidade comrpada',
+    cell: (batch: BatchWithProduct) => batch.purchase_quantity,
+  },
+  {
+    header: '',
+    cell: (batch: BatchWithProduct) => (
+      <EditBatchActionCell batch={batch} editConfig={EDIT_ALL_BATCHES_CONFIG} />
+    ),
   },
 ];
