@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PaginationSchema } from "./pagination";
+import { Product } from "./product";
 
 export interface Batch {
   id: number;
@@ -11,6 +12,10 @@ export interface Batch {
   purchase_quantity: number;
   product_id: number;
 }
+
+export type BatchWithProduct = Batch & {
+  product: Product;
+};
 
 export const CreateBatchSchema = z.object({
   tax_invoice_number: z
