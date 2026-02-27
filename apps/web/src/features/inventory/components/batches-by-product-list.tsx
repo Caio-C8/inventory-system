@@ -4,7 +4,7 @@ import { DataTable } from '@/components/data-table';
 import { useFilterUrl } from '@/hooks/use-filter-url';
 import { GetBatchesSchema } from '@repo/types';
 import { useGetBatchesByProduct } from '../hooks/use-batches';
-import { BATCH_COLUMNS } from '../constants/batch-columns';
+import { BATCHES_BY_PRODUCT_COLUMNS } from '../constants/batch-columns';
 import { useParams } from 'next/navigation';
 
 export const BatchesByProductList = () => {
@@ -28,7 +28,7 @@ export const BatchesByProductList = () => {
     <>
       {showTable ? (
         <DataTable
-          columns={BATCH_COLUMNS}
+          columns={BATCHES_BY_PRODUCT_COLUMNS}
           data={data?.data}
           isLoading={isLoading}
           meta={{
