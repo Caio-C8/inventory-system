@@ -7,7 +7,7 @@ import {
   UpdateBatchInput,
 } from '../../core/models/inventory.types';
 import { Prisma } from '@prisma/client';
-import { PaginatedResult } from '@repo/types';
+import { BatchWithProduct, PaginatedResult } from '@repo/types';
 
 @Injectable()
 export class BatchRepository {
@@ -108,11 +108,14 @@ export class BatchRepository {
         skip,
         take: limit,
         orderBy: { expiration_date: 'asc' },
+        include: {
+          product: true,
+        },
       }),
     ]);
 
     return {
-      data: data.map((batch) => this.mapToBatch(batch)),
+      data: data.map((batch) => this.mapToBatchWithProduct(batch)),
       meta: {
         total,
         page,
@@ -236,6 +239,31 @@ export class BatchRepository {
       current_quantity: prismaBatch.current_quantity,
       purchase_quantity: prismaBatch.purchase_quantity,
       product_id: prismaBatch.product_id,
+    };
+  }
+
+  private mapToBatchWithProduct(prismaBatch: any): BatchWithProduct {
+    return {
+      id: prismaBatch.id,
+      tax_invoice_number: prismaBatch.tax_invoice_number,
+      unit_cost_price: Number(prismaBatch.unit_cost_price),
+      expiration_date: prismaBatch.expiration_date,
+      purchase_date: prismaBatch.purchase_date,
+      current_quantity: prismaBatch.current_quantity,
+      purchase_quantity: prismaBatch.purchase_quantity,
+      product_id: prismaBatch.product_id,
+      product: {
+        id: prismaBatch.product.id,
+        name: prismaBatch.product.name,
+        code: prismaBatch.product.code,
+        barcode: prismaBatch.product.barcode,
+        name_search: prismaBatch.product.name_search,
+        sale_price: prismaBatch.product.sale_price,
+        current_stock: prismaBatch.product.current_stock,
+        deleted_at: prismaBatch.product.deleted_at
+          ? prismaBatch.product.deleted_at
+          : null,
+      },
     };
   }
 }
